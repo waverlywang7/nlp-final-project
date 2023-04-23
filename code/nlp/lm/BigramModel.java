@@ -16,13 +16,12 @@ import java.util.*;
 // Importing HashMap class
 import java.util.HashMap;
 
-public class BigramModel implements LMModel {
-  HashMap<String, Double> unigram_map = new HashMap<>(); // set up unigram hashmap, includes words with count of 0
-  HashMap<String, Double> unigram_vocab_map = new HashMap<>(); // same as unigram, but doesn't include words with count
-                                                               // of 0
+public class BigramModel extends NGramModel {
+  //HashMap<String, Double> unigram_map = new HashMap<>(); // set up unigram hashmap, includes words with count of 0
+  HashMap<NGram, Double> ngram_map; //bigram map
+  HashMap<NGram, Double> n_1gram_map; // unigram map
 
-
-  //HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
+  // HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
 
 HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
 
@@ -34,11 +33,30 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
       File myObj = new File(filename);
       Scanner myReader = new Scanner(myObj);
 
-      unigram_map.put("<UNK>", 0.0);
-      unigram_map.put("<s>", 0.0);
-      unigram_map.put("</s>", 0.0);
+      ArrayList<String> unk_list = new ArrayList<String>();
+      unk_list.add("<UNK>");
+      NGram UNK = new NGram(unk_list);
 
-      ArrayList<String> new_data = new ArrayList<>();
+
+      ArrayList<String> s_list = new ArrayList<String>();
+      s_list.add("<s>");
+      NGram s = new NGram(s_list);
+
+
+      ArrayList<String> sback_list = new ArrayList<String>();
+      sback_list.add("</s>");
+      NGram sback = new NGram(sback_list);
+
+      // unigram_map.put("<UNK>", 0.0);
+      // unigram_map.put("<s>", 0.0);
+      // unigram_map.put("</s>", 0.0);
+
+      // initialize <UNK> , </s>, <s>
+      n_1gram_map.put(UNK, 0.0);
+      n_1gram_map.put(s, 0.0);
+      n_1gram_map.put(sback, 0.0);
+
+      ArrayList<String> new_data = new ArrayList<>(); // will contain <s> </s> and <UNK>
 
       // adding UNK to the file and populating unigram map with vocabulary
       while (myReader.hasNextLine()) {
@@ -46,35 +64,29 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
         data = "<s> " + data + " </s>";
 
         for (String word : data.split("\\s+")) {
-          if (unigram_map.containsKey(word)) {
-            unigram_map.put(word, unigram_map.get(word) + 1); // if word is already in hashmap, increment count
-            new_data.add(word);
+          // create ngram object
+          ArrayList<String> word_list = new ArrayList<String>(); // a word list that just contains one word
+          word_list.add(word);
+          NGram unigram = new NGram(word_list);
+
+          if (n_1gram_map.containsKey(unigram)) {
+            n_1gram_map.put(unigram, n_1gram_map.get(unigram) + 1); // if word is already in hashmap, increment count
+            new_data.add(word); // add word to new_data
 
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
                    // with <UNK>.
-            unigram_map.put(word, 0.0); // keep track if we encountered word
+            n_1gram_map.put(unigram, 0.0); // keep track if we encountered word
 
             new_data.add("<UNK>");
-            unigram_map.put("<UNK>", unigram_map.get("<UNK>") + 1);// word is already in hashmap add to count
+            n_1gram_map.put(UNK, n_1gram_map.get(UNK) + 1);// word is already in hashmap add to count
 
           }
         }
 
       }
 
-      // Using for-each loop to get vocab, filtering out any word that has count 0
-      for (Map.Entry<String, Double> mapElement : unigram_map.entrySet()) {
-        String key = mapElement.getKey();
+      // TODO READ THRU
 
-        // Adding some bonus marks to all the students
-        Double value = mapElement.getValue();
-        // check if value greater than 0
-        if (value > 0) {
-          unigram_vocab_map.put(key, value);
-
-        }
-
-      }
       // Populatng the bigram map
       for (int i = 1; i < new_data.size(); ++i) {
         // create new hashmap for each first occurence
@@ -133,115 +145,121 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
     }
   }
 
-  @Override
-  public double logProb(ArrayList<String> sentWords) {
+  // @Override
+  // public double logProb(ArrayList<String> sentWords) {
 
-    String current_word = "<s>";
-    sentWords.add("</s>");
+  //   String current_word = "<s>";
+  //   sentWords.add("</s>");
 
-    double total = 0;
-    double probability = 0;
+  //   double total = 0;
+  //   double probability = 0;
 
-    // calculate the log prob of a sentence.
-    for (String word : sentWords) {
+  //   // calculate the log prob of a sentence.
+  //   for (String word : sentWords) {
 
-      probability = getBigramProb(current_word, word);
+  //     probability = getBigramProb(current_word, word);
 
-      total += Math.log10(probability); // add log prob
-      current_word = word;
-    }
-    return total;
+  //     total += Math.log10(probability); // add log prob
+  //     current_word = word;
+  //   }
+  //   return total;
+  // }
+
+  // @Override
+  // public double getPerplexity(String filename) {
+  //   try {
+  //     File myObj = new File(filename);
+  //     Scanner myReader = new Scanner(myObj);
+
+  //     double perplexity = 0;
+  //     double total_log_prob = 0;
+  //     int word_count = 0;
+
+  //     // read through each line of text
+  //     while (myReader.hasNextLine()) {
+  //       String data = myReader.nextLine();
+  //       ArrayList<String> new_data = new ArrayList<>();
+
+  //       // split the text by white space
+  //       String[] new_data_split = data.split("\\s+");
+  //       Collections.addAll(new_data, new_data_split);
+
+  //       // calculate log prob of sentence
+  //       total_log_prob += logProb(new_data);
+  //       word_count += new_data_split.length + 2; // we are accounting for sentence tags
+  //     }
+
+  //     perplexity = Math.pow(10, -1 * (total_log_prob / word_count));
+
+  //     myReader.close();
+  //     return perplexity;
+
+  //   } catch (FileNotFoundException e) {
+  //     System.out.println("An error occurred.");
+  //     e.printStackTrace();
+  //   }
+
+  //   return 0;
+  // }
+
+  // @Override
+  // public double getBigramProb(String first, String second) { // TODO: THIS GETS BIGRAM PROB AND DOES DISCOUNT TO IT BUT WE'LL DO THIS IN SMOOTHING?
+
+  //   String current_word = first;
+  //   String word = second;
+
+  //   if ((!unigram_map.containsKey(word)) || unigram_map.get(word) == 0) {
+  //     word = "<UNK>";
+  //   }
+
+  //   if ((!unigram_map.containsKey(current_word)) || unigram_map.get(current_word) == 0) {
+  //     current_word = "<UNK>";
+  //   }
+
+  //   // if bigram exists, calculate the bigram prob using count of bigram and count
+  //   // of bigrams that start with first word
+  //   if (this.bigram_map.get(current_word).containsKey(word)) {
+  //     double bigram_count = this.bigram_map.get(current_word).get(word); // get how many times the bigram shows up
+
+  //     double total_bigram_count = 0.0;
+  //     // count up the number of bigrams that start with the first word of the bigram
+  //     for (String second_word : this.bigram_map.get(current_word).keySet()) {
+  //       total_bigram_count += this.bigram_map.get(current_word).get(second_word);
+
+  //     }
+
+  //     return (bigram_count - this.discount) / total_bigram_count; // add discount
+
+  //   } else {
+  //     // if bigram has never been encountered, then calculate bigramprob differently
+
+  //     double unique_bigrams = this.bigram_map.get(current_word).size();
+  //     double total_bigram_count = 0.0;
+  //     double denominator = 1.0;
+
+  //     // count tokens in the training text
+  //     int total_tokens_count = 0;
+  //     for (String unigram_word : this.unigram_map.keySet()) {
+  //       total_tokens_count += this.unigram_map.get(unigram_word);
+  //     }
+
+  //     // count the total times a bigram start with first word in bigram
+  //     for (String second_word : this.bigram_map.get(current_word).keySet()) {
+  //       total_bigram_count += this.bigram_map.get(current_word).get(second_word);
+  //       denominator -= this.unigram_map.get(second_word) / total_tokens_count; // calculate the deoniminator of alpha
+  //     }
+  //     double reserved_mass = unique_bigrams * this.discount / total_bigram_count;
+  //     double alpha = reserved_mass / denominator;
+
+  //     double prob_second_word = unigram_map.get(word) / total_tokens_count;
+  //     return alpha * prob_second_word;
+  //   }
+
   }
 
   @Override
-  public double getPerplexity(String filename) {
-    try {
-      File myObj = new File(filename);
-      Scanner myReader = new Scanner(myObj);
-
-      double perplexity = 0;
-      double total_log_prob = 0;
-      int word_count = 0;
-
-      // read through each line of text
-      while (myReader.hasNextLine()) {
-        String data = myReader.nextLine();
-        ArrayList<String> new_data = new ArrayList<>();
-
-        // split the text by white space
-        String[] new_data_split = data.split("\\s+");
-        Collections.addAll(new_data, new_data_split);
-
-        // calculate log prob of sentence
-        total_log_prob += logProb(new_data);
-        word_count += new_data_split.length + 2; // we are accounting for sentence tags
-      }
-
-      perplexity = Math.pow(10, -1 * (total_log_prob / word_count));
-
-      myReader.close();
-      return perplexity;
-
-    } catch (FileNotFoundException e) {
-      System.out.println("An error occurred.");
-      e.printStackTrace();
-    }
-
-    return 0;
-  }
-
-  @Override
-  public double getBigramProb(String first, String second) {
-
-    String current_word = first;
-    String word = second;
-
-    if ((!unigram_map.containsKey(word)) || unigram_map.get(word) == 0) {
-      word = "<UNK>";
-    }
-
-    if ((!unigram_map.containsKey(current_word)) || unigram_map.get(current_word) == 0) {
-      current_word = "<UNK>";
-    }
-
-    // if bigram exists, calculate the bigram prob using count of bigram and count
-    // of bigrams that start with first word
-    if (this.bigram_map.get(current_word).containsKey(word)) {
-      double bigram_count = this.bigram_map.get(current_word).get(word); // get how many times the bigram shows up
-
-      double total_bigram_count = 0.0;
-      // count up the number of bigrams that start with the first word of the bigram
-      for (String second_word : this.bigram_map.get(current_word).keySet()) {
-        total_bigram_count += this.bigram_map.get(current_word).get(second_word);
-
-      }
-
-      return (bigram_count - this.discount) / total_bigram_count; // add discount
-
-    } else {
-      // if bigram has never been encountered, then calculate bigramprob differently
-
-      double unique_bigrams = this.bigram_map.get(current_word).size();
-      double total_bigram_count = 0.0;
-      double denominator = 1.0;
-
-      // count tokens in the training text
-      int total_tokens_count = 0;
-      for (String unigram_word : this.unigram_map.keySet()) {
-        total_tokens_count += this.unigram_map.get(unigram_word);
-      }
-
-      // count the total times a bigram start with first word in bigram
-      for (String second_word : this.bigram_map.get(current_word).keySet()) {
-        total_bigram_count += this.bigram_map.get(current_word).get(second_word);
-        denominator -= this.unigram_map.get(second_word) / total_tokens_count; // calculate the deoniminator of alpha
-      }
-      double reserved_mass = unique_bigrams * this.discount / total_bigram_count;
-      double alpha = reserved_mass / denominator;
-
-      double prob_second_word = unigram_map.get(word) / total_tokens_count;
-      return alpha * prob_second_word;
-    }
-
+  public void trainModel() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'trainModel'");
   }
 }
