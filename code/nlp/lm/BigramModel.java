@@ -1,6 +1,3 @@
-package code.nlp.lm;
-
-
 // Names: Christy Marchese, Waverly Wang
 package code.nlp.lm;
 
@@ -17,13 +14,13 @@ import java.util.*;
 import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
-  //HashMap<String, Double> unigram_map = new HashMap<>(); // set up unigram hashmap, includes words with count of 0
-  HashMap<NGram, Double> ngram_map; //bigram map
-  HashMap<NGram, Double> n_1gram_map; // unigram map
+//HashMap<String, Double> unigram_map = new HashMap<>(); // set up unigram hashmap, includes words with count of 0
+  static HashMap<NGram, Double> ngram_map; //bigram map
+  static HashMap<NGram, Double> n_1gram_map; // unigram map
 
-  // HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
+// HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
 
-HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
+//HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
 
   double discount = .9;
 
@@ -36,6 +33,7 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
       ArrayList<String> unk_list = new ArrayList<String>();
       unk_list.add("<UNK>");
       NGram UNK = new NGram(unk_list);
+      System.out.println(UNK + "UNK");
 
 
       ArrayList<String> s_list = new ArrayList<String>();
@@ -94,11 +92,17 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
         String second_letter = new_data.get(i);
 
         // if bigram map doesn't contain first letter, update hashmap
+        // make the ngram object that holds bigram
+        ArrayList<String> word_list = new ArrayList<String>();
+        word_list.add(first_letter);
+        word_list.add(second_letter);
+        NGram bigram = new NGram(word_list);
 
-        if (!bigram_map.containsKey(first_letter+second_letter)) { // TODO: REPLACE WITH n-GRAM OBJECT. 
-          bigram_map.put(first_letter+second_letter, 1.0);
+
+        if (!ngram_map.containsKey(bigram)) { // TODO: REPLACE WITH n-GRAM OBJECT. 
+          ngram_map.put(bigram, 1.0);
         } else {
-          bigram_map.put(first_letter, (bigram_map.get(first_letter+second_letter) + 1));
+          ngram_map.put(bigram, (ngram_map.get(bigram) + 1));
 
         }
 
@@ -119,7 +123,7 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
         // }
 
       }
-      System.out.println(unigram_map);
+      System.out.println(n_1gram_map);
 
       myReader.close();
     } catch (FileNotFoundException e) {
@@ -129,20 +133,27 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
 
   }
 
+
   public static void main(String[] args) {
 
-    List<Double> list = new ArrayList<Double>();
-    list.add(.99);
-    list.add(.9);
-    list.add(.75);
-    list.add(.5);
-    list.add(.25);
-    list.add(.1);
-    for (double item : list) {
-      System.out.println(item);
-      LambdaLMModel model = new LambdaLMModel("data/training.txt", item);
-      System.out.println(model.getPerplexity("data/development.txt"));
-    }
+    // null poiter execption maybe because i crate a model like this. 
+    BigramModel model = new BigramModel("nlp-final-project/data/training.txt", .99);
+    System.out.println(ngram_map);
+    System.out.println(n_1gram_map); 
+
+    // List<Double> list = new ArrayList<Double>();
+    // list.add(.99);
+    // list.add(.9);
+    // list.add(.75);
+    // list.add(.5);
+    // list.add(.25);
+    // list.add(.1);
+    // for (double item : list) {
+    //   System.out.println(item);
+    //   LambdaLMModel model = new LambdaLMModel("data/training.txt", item);
+
+    //   System.out.println(model.getPerplexity("data/development.txt"));
+    // }
   }
 
   // @Override
@@ -255,7 +266,7 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
   //     return alpha * prob_second_word;
   //   }
 
-  }
+  // }
 
   @Override
   public void trainModel() {
@@ -263,3 +274,4 @@ HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
     throw new UnsupportedOperationException("Unimplemented method 'trainModel'");
   }
 }
+
