@@ -1,4 +1,4 @@
-// Names: Christy Marchese, Waverly Wang
+// Names: Waverly Wang, Adam Cohan, Noah Nevens
 package code.nlp.lm;
 
 import java.io.File; // Import the File class
@@ -14,18 +14,10 @@ import java.util.*;
 import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
-//HashMap<String, Double> unigram_map = new HashMap<>(); // set up unigram hashmap, includes words with count of 0
-  static HashMap<NGram, Double> ngram_map; //bigram map
-  static HashMap<NGram, Double> n_1gram_map; // unigram map
+  static HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
+  static HashMap<NGram, Integer> n_1gram_map = new HashMap<NGram, Integer>(); // unigram map
 
-// HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
-
-//HashMap<String, Double> bigram_map = new HashMap<>(); // now a single hashmap
-
-  double discount = .9;
-
-  public BigramModel(String filename, double discount) {
-    this.discount = discount;
+  public BigramModel(String filename) {
     try {
       File myObj = new File(filename);
       Scanner myReader = new Scanner(myObj);
@@ -45,14 +37,10 @@ public class BigramModel extends NGramModel {
       sback_list.add("</s>");
       NGram sback = new NGram(sback_list);
 
-      // unigram_map.put("<UNK>", 0.0);
-      // unigram_map.put("<s>", 0.0);
-      // unigram_map.put("</s>", 0.0);
-
-      // initialize <UNK> , </s>, <s>
-      n_1gram_map.put(UNK, 0.0);
-      n_1gram_map.put(s, 0.0);
-      n_1gram_map.put(sback, 0.0);
+      // initialize <UNK> , </s>, <s> in the unigram map
+      n_1gram_map.put(UNK, 0);
+      n_1gram_map.put(s, 0);
+      n_1gram_map.put(sback, 0);
 
       ArrayList<String> new_data = new ArrayList<>(); // will contain <s> </s> and <UNK>
 
@@ -73,7 +61,7 @@ public class BigramModel extends NGramModel {
 
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
                    // with <UNK>.
-            n_1gram_map.put(unigram, 0.0); // keep track if we encountered word
+            n_1gram_map.put(unigram, 0); // keep track if we encountered word
 
             new_data.add("<UNK>");
             n_1gram_map.put(UNK, n_1gram_map.get(UNK) + 1);// word is already in hashmap add to count
@@ -82,7 +70,6 @@ public class BigramModel extends NGramModel {
         }
 
       }
-
       // TODO READ THRU
 
       // Populatng the bigram map
@@ -100,7 +87,7 @@ public class BigramModel extends NGramModel {
 
 
         if (!ngram_map.containsKey(bigram)) { // TODO: REPLACE WITH n-GRAM OBJECT. 
-          ngram_map.put(bigram, 1.0);
+          ngram_map.put(bigram, 1);
         } else {
           ngram_map.put(bigram, (ngram_map.get(bigram) + 1));
 
@@ -123,7 +110,8 @@ public class BigramModel extends NGramModel {
         // }
 
       }
-      System.out.println(n_1gram_map);
+      //System.out.println(n_1gram_map);
+      System.out.println(ngram_map);
 
       myReader.close();
     } catch (FileNotFoundException e) {
@@ -137,7 +125,7 @@ public class BigramModel extends NGramModel {
   public static void main(String[] args) {
 
     // null poiter execption maybe because i crate a model like this. 
-    BigramModel model = new BigramModel("nlp-final-project/data/training.txt", .99);
+    BigramModel model = new BigramModel("data/training.txt");
     System.out.println(ngram_map);
     System.out.println(n_1gram_map); 
 

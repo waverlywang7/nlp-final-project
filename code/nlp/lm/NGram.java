@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class NGram {
     
     private int n;
-    private ArrayList<String> words;
+    private ArrayList<String> words = new ArrayList<String>();
 
 
     public NGram(ArrayList<String> ngram) {
