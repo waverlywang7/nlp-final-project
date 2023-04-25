@@ -14,10 +14,11 @@ import java.util.*;
 import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
+  // TODO: REPLACE VocabTOKENCOUNTS WITH THE UNIGRAM_MAP
   static HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
-  static HashMap<NGram, Integer> n_1gram_map = new HashMap<NGram, Integer>(); // unigram map
-
-  HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
+  HashMap<String, Double> vocabTokenCounts;
+  static HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>();
+  // HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
 
 
   public BigramModel(String filename) {
@@ -25,25 +26,30 @@ public class BigramModel extends NGramModel {
       File myObj = new File(filename);
       Scanner myReader = new Scanner(myObj);
 
-      ArrayList<String> unk_list = new ArrayList<String>();
-      unk_list.add("<UNK>");
-      NGram UNK = new NGram(unk_list);
-      System.out.println(UNK + "UNK");
+      // ArrayList<String> unk_list = new ArrayList<String>();
+      // unk_list.add("<UNK>");
+      // NGram UNK = new NGram(unk_list);
 
 
-      ArrayList<String> s_list = new ArrayList<String>();
-      s_list.add("<s>");
-      NGram s = new NGram(s_list);
+      // ArrayList<String> s_list = new ArrayList<String>();
+      // s_list.add("<s>");
+      // NGram s = new NGram(s_list);
 
 
-      ArrayList<String> sback_list = new ArrayList<String>();
-      sback_list.add("</s>");
-      NGram sback = new NGram(sback_list);
+      // ArrayList<String> sback_list = new ArrayList<String>();
+      // sback_list.add("</s>");
+      // NGram sback = new NGram(sback_list);
 
       // initialize <UNK> , </s>, <s> in the unigram map
-      n_1gram_map.put(UNK, 0);
-      n_1gram_map.put(s, 0);
-      n_1gram_map.put(sback, 0);
+      // n_1gram_map.put(UNK, 0);
+      // n_1gram_map.put(s, 0);
+      // n_1gram_map.put(sback, 0);
+
+      // initialize <UNK> , </s>, <s> in the unigram map
+      vocabTokenCounts.put("<UNK>", 0.0);
+      vocabTokenCounts.put("<s>", 0.0);
+      vocabTokenCounts.put("</s>", 0.0);
+      
 
       ArrayList<String> new_data = new ArrayList<>(); // will contain <s> </s> and <UNK>
 
@@ -54,21 +60,20 @@ public class BigramModel extends NGramModel {
 
         for (String word : data.split("\\s+")) {
           // create ngram object
-          ArrayList<String> word_list = new ArrayList<String>(); // a word list that just contains one word
-          word_list.add(word);
-          
-          NGram unigram = new NGram(word_list);
+          // ArrayList<String> word_list = new ArrayList<String>(); // a word list that just contains one word
+          // word_list.add(word);
+          // NGram unigram = new NGram(word_list);
 
-          if (n_1gram_map.containsKey(unigram)) {
-            n_1gram_map.put(unigram, n_1gram_map.get(unigram) + 1); // if word is already in hashmap, increment count
+          if (vocabTokenCounts.containsKey(word)) {
+            vocabTokenCounts.put(word, vocabTokenCounts.get(word) + 1.0); // if word is already in hashmap, increment count
             new_data.add(word); // add word to new_data
 
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
                    // with <UNK>.
-            n_1gram_map.put(unigram, 0); // keep track if we encountered word
+            vocabTokenCounts.put(word, 0.0); // keep track if we encountered word
 
             new_data.add("<UNK>");
-            n_1gram_map.put(UNK, n_1gram_map.get(UNK) + 1);// word is already in hashmap add to count
+            vocabTokenCounts.put("<UNK>", vocabTokenCounts.get("<UNK>") + 1);// word is already in hashmap add to count
 
           }
         }
@@ -97,20 +102,30 @@ public class BigramModel extends NGramModel {
 
         }
 
-        // Actually we need bigram_map hashmap... to get the bigram_prob
-        if (!bigram_map.containsKey(first_letter)) {
-          HashMap<String, Double> second_letter_map = new HashMap<>();
-          second_letter_map.put(second_letter, 1.0);
-          bigram_map.put(first_letter, second_letter_map);
+        // first_letter
+        ArrayList<String> first_list = new ArrayList<String>();
+        first_list.add(first_letter);
+        NGram first_letter_ngram = new NGram(first_list);
+
+        // second_letter
+        ArrayList<String> second_list = new ArrayList<String>();
+        second_list.add(second_letter);
+        NGram second_letter_ngram= new NGram(second_list);
+
+        // Populate an n_1grammap
+        if (!n_1gram_map.containsKey(first_letter_ngram)) {
+          HashMap<NGram, Double> second_letter_map = new HashMap<>();
+          second_letter_map.put(second_letter_ngram, 1.0);
+          n_1gram_map.put(first_letter_ngram, second_letter_map);
 
         } else {
           // if the first letter is there check if second letter exists in nested map
-          if (bigram_map.get(first_letter).containsKey(second_letter)) {
+          if (n_1gram_map.get(first_letter_ngram).containsKey(second_letter_ngram)) {
             // update the count
-            bigram_map.get(first_letter).put(second_letter, bigram_map.get(first_letter).get(second_letter) + 1);
+            n_1gram_map.get(first_letter_ngram).put(second_letter_ngram, n_1gram_map.get(first_letter_ngram).get(second_letter_ngram) + 1);
           } else {
             // make new nested second letter key and update
-            bigram_map.get(first_letter).put(second_letter, 1.0);
+            n_1gram_map.get(first_letter_ngram).put(second_letter_ngram, 1.0);
           }
         }
 
@@ -206,6 +221,7 @@ public class BigramModel extends NGramModel {
   //   return 0;
   // }
 
+  
   // @Override
   public double getBigramProb(String first, String second) { // TODO: THIS GETS BIGRAM PROB AND DOES DISCOUNT TO IT BUT WE'LL DO THIS IN SMOOTHING?
 
@@ -219,54 +235,58 @@ public class BigramModel extends NGramModel {
     if ((!n_1gram_map.containsKey(current_word)) || n_1gram_map.get(current_word) == 0) {
       current_word = "<UNK>";
     }
+    // TODO: TELL ADAM TO CHECK IF THEY'VE SEEN THE WORD IN TRAINING, IF NOT, MAKE THE WORD UNK. 
+
+
+    
 
     // if bigram exists, calculate the bigram prob using count of bigram and count
     // of bigrams that start with first word
 
-    ArrayList<String> word_list = new ArrayList<String>(); // make ngram object
-    word_list.add(current_word);
-    word_list.add(word);
-    NGram bigram = new NGram(word_list);
+    // ArrayList<String> word_list = new ArrayList<String>(); // make ngram object
+    // word_list.add(current_word);
+    // word_list.add(word);
+    // NGram bigram = new NGram(word_list);
 
-    if (this.ngram_map.containsKey(bigram)) {
-      double bigram_count = this.ngram_map.get(bigram); // get how many times the bigram shows up
+    // if (this.ngram_map.containsKey(bigram)) {
+    //   double bigram_count = this.ngram_map.get(bigram); // get how many times the bigram shows up
 
-      double total_bigram_count = 0.0;
-      // count up the number of bigrams that start with the first word of the bigram
-      for (String second_word : this.bigram_map.get(current_word).keySet()) { // UMM LIKE HOW DO WE DO THIS EASILY WITH ... NGRAM OBJECTS...
-        total_bigram_count += this.bigram_map.get(current_word).get(second_word);
+    //   double total_bigram_count = 0.0;
+    //   // count up the number of bigrams that start with the first word of the bigram 
+    //   for (String second_word : this.bigram_map.get(current_word).keySet()) { // UMM USE n_1gram_map
+    //     total_bigram_count += this.bigram_map.get(current_word).get(second_word);
  
-      }
+    //   }
 
-      // OR HMM.. Maybe instead of doing this we just count of up the unigrams that have the first word? 
+    //   // OR HMM.. Maybe instead of doing this we just count of up the unigrams that have the first word? 
 
-      return (bigram_count - this.discount) / total_bigram_count; // add discount
+    //   return (bigram_count - this.discount) / total_bigram_count; // add discount
 
-    } else {
-      // if bigram has never been encountered, then calculate bigramprob differently
+    // } else {
+    //   // if bigram has never been encountered, then calculate bigramprob differently
 
-      double unique_bigrams = this.bigram_map.get(current_word).size();
-      double total_bigram_count = 0.0;
-      double denominator = 1.0;
+    //   double unique_bigrams = this.bigram_map.get(current_word).size();
+    //   double total_bigram_count = 0.0;
+    //   double denominator = 1.0;
 
-      // count tokens in the training text
-      int total_tokens_count = 0;
-      for (NGram unigram_word : this.n_1gram_map.keySet()) {
-        total_tokens_count += this.n_1gram_map.get(unigram_word);
-      }
+    //   // count tokens in the training text
+    //   int total_tokens_count = 0;
+    //   for (NGram unigram_word : this.n_1gram_map.keySet()) {
+    //     total_tokens_count += this.n_1gram_map.get(unigram_word);
+    //   }
     
 
-      // count the total times a bigram start with first word in bigram
-      for (String second_word : this.bigram_map.get(current_word).keySet()) {
-        total_bigram_count += this.bigram_map.get(current_word).get(second_word);
-        denominator -= this.n_1gram_map.get(second_word) / total_tokens_count; // calculate the deoniminator of alpha
-      }
-      double reserved_mass = unique_bigrams * this.discount / total_bigram_count;
-      double alpha = reserved_mass / denominator;
+    //   // count the total times a bigram start with first word in bigram
+    //   for (String second_word : this.bigram_map.get(current_word).keySet()) {
+    //     total_bigram_count += this.bigram_map.get(current_word).get(second_word);
+    //     denominator -= this.n_1gram_map.get(second_word) / total_tokens_count; // calculate the deoniminator of alpha
+    //   }
+    //   double reserved_mass = unique_bigrams * this.discount / total_bigram_count;
+    //   double alpha = reserved_mass / denominator;
 
-      double prob_second_word = n_1gram_map.get(word) / total_tokens_count;
-      return alpha * prob_second_word;
-    }
+    //   double prob_second_word = n_1gram_map.get(word) / total_tokens_count;
+    //   return alpha * prob_second_word;
+    // }
 
   }
 
