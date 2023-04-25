@@ -11,7 +11,13 @@ public abstract class NGramModel {
     public abstract void trainModel();
 
     public double getNGramCount(NGram ng) {
-        return ngram_map.get(ng);
+        if(ngram_map.keySet().contains(ng)) {
+            return ngram_map.get(ng);
+        }
+        else {
+            return 0.0;
+        }
+        
     }
 
     // to return count(aa) pass in the ngram "aad"
