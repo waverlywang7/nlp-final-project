@@ -17,6 +17,9 @@ public class BigramModel extends NGramModel {
   static HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
   static HashMap<NGram, Integer> n_1gram_map = new HashMap<NGram, Integer>(); // unigram map
 
+  HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
+
+
   public BigramModel(String filename) {
     try {
       File myObj = new File(filename);
@@ -53,6 +56,7 @@ public class BigramModel extends NGramModel {
           // create ngram object
           ArrayList<String> word_list = new ArrayList<String>(); // a word list that just contains one word
           word_list.add(word);
+          
           NGram unigram = new NGram(word_list);
 
           if (n_1gram_map.containsKey(unigram)) {
@@ -70,7 +74,7 @@ public class BigramModel extends NGramModel {
         }
 
       }
-      // TODO READ THRU
+      
 
       // Populatng the bigram map
       for (int i = 1; i < new_data.size(); ++i) {
@@ -93,21 +97,22 @@ public class BigramModel extends NGramModel {
 
         }
 
-        // if (!bigram_map.containsKey(first_letter)) {
-        //   HashMap<String, Double> second_letter_map = new HashMap<>();
-        //   second_letter_map.put(second_letter, 1.0);
-        //   bigram_map.put(first_letter, second_letter_map);
+        // Actually we need bigram_map hashmap... to get the bigram_prob
+        if (!bigram_map.containsKey(first_letter)) {
+          HashMap<String, Double> second_letter_map = new HashMap<>();
+          second_letter_map.put(second_letter, 1.0);
+          bigram_map.put(first_letter, second_letter_map);
 
-        // } else {
-        //   // if the first letter is there check if second letter exists in nested map
-        //   if (bigram_map.get(first_letter).containsKey(second_letter)) {
-        //     // update the count
-        //     bigram_map.get(first_letter).put(second_letter, bigram_map.get(first_letter).get(second_letter) + 1);
-        //   } else {
-        //     // make new nested second letter key and update
-        //     bigram_map.get(first_letter).put(second_letter, 1.0);
-        //   }
-        // }
+        } else {
+          // if the first letter is there check if second letter exists in nested map
+          if (bigram_map.get(first_letter).containsKey(second_letter)) {
+            // update the count
+            bigram_map.get(first_letter).put(second_letter, bigram_map.get(first_letter).get(second_letter) + 1);
+          } else {
+            // make new nested second letter key and update
+            bigram_map.get(first_letter).put(second_letter, 1.0);
+          }
+        }
 
       }
       //System.out.println(n_1gram_map);
@@ -125,9 +130,9 @@ public class BigramModel extends NGramModel {
   public static void main(String[] args) {
 
     // null poiter execption maybe because i crate a model like this. 
-    BigramModel model = new BigramModel("data/training.txt");
-    System.out.println(ngram_map);
-    System.out.println(n_1gram_map); 
+    BigramModel model = new BigramModel("nlp-final-project/data/training.txt");
+    //System.out.println(ngram_map);
+    //System.out.println(n_1gram_map); 
 
     // List<Double> list = new ArrayList<Double>();
     // list.add(.99);
@@ -202,59 +207,66 @@ public class BigramModel extends NGramModel {
   // }
 
   // @Override
-  // public double getBigramProb(String first, String second) { // TODO: THIS GETS BIGRAM PROB AND DOES DISCOUNT TO IT BUT WE'LL DO THIS IN SMOOTHING?
+  public double getBigramProb(String first, String second) { // TODO: THIS GETS BIGRAM PROB AND DOES DISCOUNT TO IT BUT WE'LL DO THIS IN SMOOTHING?
 
-  //   String current_word = first;
-  //   String word = second;
+    String current_word = first;
+    String word = second;
 
-  //   if ((!unigram_map.containsKey(word)) || unigram_map.get(word) == 0) {
-  //     word = "<UNK>";
-  //   }
+    if ((!n_1gram_map.containsKey(word)) || n_1gram_map.get(word) == 0) {
+      word = "<UNK>";
+    }
 
-  //   if ((!unigram_map.containsKey(current_word)) || unigram_map.get(current_word) == 0) {
-  //     current_word = "<UNK>";
-  //   }
+    if ((!n_1gram_map.containsKey(current_word)) || n_1gram_map.get(current_word) == 0) {
+      current_word = "<UNK>";
+    }
 
-  //   // if bigram exists, calculate the bigram prob using count of bigram and count
-  //   // of bigrams that start with first word
-  //   if (this.bigram_map.get(current_word).containsKey(word)) {
-  //     double bigram_count = this.bigram_map.get(current_word).get(word); // get how many times the bigram shows up
+    // if bigram exists, calculate the bigram prob using count of bigram and count
+    // of bigrams that start with first word
 
-  //     double total_bigram_count = 0.0;
-  //     // count up the number of bigrams that start with the first word of the bigram
-  //     for (String second_word : this.bigram_map.get(current_word).keySet()) {
-  //       total_bigram_count += this.bigram_map.get(current_word).get(second_word);
+    ArrayList<String> word_list = new ArrayList<String>(); // make ngram object
+    word_list.add(current_word);
+    word_list.add(word);
+    NGram bigram = new NGram(word_list);
 
-  //     }
+    if (this.ngram_map.containsKey(bigram)) {
+      double bigram_count = this.ngram_map.get(bigram); // get how many times the bigram shows up
 
-  //     return (bigram_count - this.discount) / total_bigram_count; // add discount
+      double total_bigram_count = 0.0;
+      // count up the number of bigrams that start with the first word of the bigram
+      for (String second_word : this.bigram_map.get(current_word).keySet()) { // UMM LIKE HOW DO WE DO THIS EASILY WITH ... NGRAM OBJECTS...
+        total_bigram_count += this.bigram_map.get(current_word).get(second_word);
+ 
+      }
 
-  //   } else {
-  //     // if bigram has never been encountered, then calculate bigramprob differently
+      return (bigram_count - this.discount) / total_bigram_count; // add discount
 
-  //     double unique_bigrams = this.bigram_map.get(current_word).size();
-  //     double total_bigram_count = 0.0;
-  //     double denominator = 1.0;
+    } else {
+      // if bigram has never been encountered, then calculate bigramprob differently
 
-  //     // count tokens in the training text
-  //     int total_tokens_count = 0;
-  //     for (String unigram_word : this.unigram_map.keySet()) {
-  //       total_tokens_count += this.unigram_map.get(unigram_word);
-  //     }
+      double unique_bigrams = this.bigram_map.get(current_word).size();
+      double total_bigram_count = 0.0;
+      double denominator = 1.0;
 
-  //     // count the total times a bigram start with first word in bigram
-  //     for (String second_word : this.bigram_map.get(current_word).keySet()) {
-  //       total_bigram_count += this.bigram_map.get(current_word).get(second_word);
-  //       denominator -= this.unigram_map.get(second_word) / total_tokens_count; // calculate the deoniminator of alpha
-  //     }
-  //     double reserved_mass = unique_bigrams * this.discount / total_bigram_count;
-  //     double alpha = reserved_mass / denominator;
+      // count tokens in the training text
+      int total_tokens_count = 0;
+      for (NGram unigram_word : this.n_1gram_map.keySet()) {
+        total_tokens_count += this.n_1gram_map.get(unigram_word);
+      }
+    
 
-  //     double prob_second_word = unigram_map.get(word) / total_tokens_count;
-  //     return alpha * prob_second_word;
-  //   }
+      // count the total times a bigram start with first word in bigram
+      for (String second_word : this.bigram_map.get(current_word).keySet()) {
+        total_bigram_count += this.bigram_map.get(current_word).get(second_word);
+        denominator -= this.n_1gram_map.get(second_word) / total_tokens_count; // calculate the deoniminator of alpha
+      }
+      double reserved_mass = unique_bigrams * this.discount / total_bigram_count;
+      double alpha = reserved_mass / denominator;
 
-  // }
+      double prob_second_word = n_1gram_map.get(word) / total_tokens_count;
+      return alpha * prob_second_word;
+    }
+
+  }
 
   @Override
   public void trainModel() {
