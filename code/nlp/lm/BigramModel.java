@@ -211,7 +211,7 @@ public class BigramModel extends NGramModel {
 
     String current_word = first;
     String word = second;
-
+    // NOTE: We will need unigram map for the TRIGRAM!!! so we know if we encountered the word in training!
     if ((!n_1gram_map.containsKey(word)) || n_1gram_map.get(word) == 0) {
       word = "<UNK>";
     }
@@ -237,6 +237,8 @@ public class BigramModel extends NGramModel {
         total_bigram_count += this.bigram_map.get(current_word).get(second_word);
  
       }
+
+      // OR HMM.. Maybe instead of doing this we just count of up the unigrams that have the first word? 
 
       return (bigram_count - this.discount) / total_bigram_count; // add discount
 
