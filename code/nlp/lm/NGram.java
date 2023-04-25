@@ -15,11 +15,11 @@ public class NGram {
         }
     }
 
-    public ArrayList<String> getN_1Gram() {
-        return (ArrayList) words.subList(0, n-1);
+    public NGram getN_1Gram() {
+        return new NGram((ArrayList) words.subList(0, n-1));
     }
 
-    public ArrayList<String> getNGram() {
+    public ArrayList<String> getNGramArrayList() {
         return this.words;
     }
 }
