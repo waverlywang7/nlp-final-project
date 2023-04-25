@@ -1,11 +1,10 @@
 package code.nlp.lm;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public abstract class NGramModel {
     
-    HashSet<NGram> vocab;
+    HashMap<String, Double> vocabTokenCounts;
     HashMap<NGram, Double> ngram_map;
     HashMap<NGram, HashMap<NGram, Double>> n_1gram_map;
 
