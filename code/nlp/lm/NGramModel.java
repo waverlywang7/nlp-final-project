@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public abstract class NGramModel {
     
-    HashMap<String, Double> vocabTokenCounts;
+    HashMap<String, Double> unigram_map;
     HashMap<NGram, Double> ngram_map;
     HashMap<NGram, HashMap<NGram, Double>> n_1gram_map;
 
