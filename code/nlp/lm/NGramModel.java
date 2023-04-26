@@ -31,4 +31,8 @@ public abstract class NGramModel {
         return sum;
     }
 
+    public double getVocabSize() {
+        return (double) this.unigram_map.size();
+    }
+
 }
