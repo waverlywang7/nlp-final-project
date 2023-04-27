@@ -4,13 +4,16 @@ import java.util.HashMap;
 
 public abstract class NGramModel {
     
-    HashMap<String, Double> unigram_map = new HashMap<String, Double>();
+    HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // includes all words that show up 0 times or more
+    HashMap<String, Double> unigram_vocab_map = new HashMap<String, Double>(); // includes the words that show up MORE than 0 times. We use this to get num of unique words
     HashMap<NGram, Double> ngram_map = new HashMap<NGram, Double>();
     HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>();
 
     public abstract void trainModel();
 
     public double getNGramCount(NGram ng) {
+
+     
         if(ngram_map.keySet().contains(ng)) {
             return ngram_map.get(ng);
         }

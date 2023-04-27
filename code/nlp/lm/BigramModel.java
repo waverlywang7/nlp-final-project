@@ -19,8 +19,6 @@ public class BigramModel extends NGramModel {
   HashMap<String, Double> unigram_vocab_map = new HashMap<>(); // includes only word greater than 0 count
   HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // nested map with has first word then nested second word hashmap
 
-
-
   public BigramModel(String filename) {
     try {
       File myObj = new File(filename);

@@ -22,6 +22,7 @@ public class TrigramModel extends NGramModel {
 
  HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
  ArrayList<String> words_encountered = new ArrayList<String>();
+ HashMap<String, Double> unigram_vocab_map = new HashMap<>(); //TODO: Do this! which will be the number of unique words including UNK. 
 
 
 
