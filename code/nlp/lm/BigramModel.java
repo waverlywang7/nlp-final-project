@@ -15,8 +15,10 @@ import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
   HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
-  HashMap<String, Double> unigram_map = new HashMap <String, Double>(); // includes words with 0 count
-  HashMap<String, Double> unigram_vocab_map = new HashMap<>(); // includes only word greater than 0 count
+  //HashMap<String, Double> unigram_map = new HashMap <String, Double>(); // includes words with 0 count
+
+  ArrayList<String> words_encountered = new ArrayList<String>();
+  ArrayList<String> unigram_vocab = new ArrayList<String>(); // num of words encountered two times or more, the number of unique words including UNK. 
   HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // nested map with has first word then nested second word hashmap
 
   public BigramModel(String filename) {
@@ -44,9 +46,10 @@ public class BigramModel extends NGramModel {
       // n_1gram_map.put(sback, 0);
 
       // initialize <UNK> , </s>, <s> in the unigram map
-      unigram_map.put("<UNK>", 0.0);
-      unigram_map.put("<s>", 0.0);
-      unigram_map.put("</s>", 0.0);
+
+      // unigram_map.put("<UNK>", 0.0);
+      //unigram_map.put("<s>", 0.0);
+      //unigram_map.put("</s>", 0.0);
       
 
       ArrayList<String> new_data = new ArrayList<>(); // will contain <s> </s> and <UNK>
@@ -62,16 +65,24 @@ public class BigramModel extends NGramModel {
           // word_list.add(word);
           // NGram unigram = new NGram(word_list);
 
-          if (unigram_map.containsKey(word)) {
-            unigram_map.put(word, unigram_map.get(word) + 1.0); // if word is already in hashmap, increment count
-            new_data.add(word); // add word to new_data
+          if (words_encountered.contains(word)) {
+            //unigram_map.put(word, unigram_map.get(word) + 1.0); // if word is already in hashmap, increment count
 
+            if (!unigram_vocab.contains(word)){ // word has been encountered at least two times
+              unigram_vocab.add(word);
+            }
+            new_data.add(word); // add word to new_data
+            
+            
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
                    // with <UNK>.
-            unigram_map.put(word, 0.0); // keep track if we encountered word
-
+            //unigram_map.put(word, 0.0); // keep track if we encountered word
+            if (!words_encountered.contains("<UNK>")){
+              unigram_vocab.add("<UNK>");
+            }
+            words_encountered.add(word);
             new_data.add("<UNK>");
-            unigram_map.put("<UNK>", unigram_map.get("<UNK>") + 1);// word is already in hashmap add to count
+            //unigram_map.put("<UNK>", unigram_map.get("<UNK>") + 1);// word is already in hashmap add to count
 
           }
         }
@@ -79,17 +90,18 @@ public class BigramModel extends NGramModel {
       }
 
 
-      // Using for-each loop to get vocab, filtering out any word that has count 0
-      for (Map.Entry<String, Double> mapElement : unigram_map.entrySet()) {
-        String key = mapElement.getKey();
+      // // Using for-each loop to get vocab, filtering out any word that has count 0
+      // for (Map.Entry<String, Double> mapElement : unigram_map.entrySet()) {
+      //   String key = mapElement.getKey();
 
-        // Adding some bonus marks to all the students
-        Double value = mapElement.getValue();
-        // check if value greater than 0
-        if (value > 0) {
-          unigram_vocab_map.put(key, value);
+      //   // Adding some bonus marks to all the students
+      //   Double value = mapElement.getValue();
+      //   // check if value greater than 0
+      //   if (value > 0) {
+      //     unigram_vocab_map.put(key, value);
 
-        }
+      //   }
+      // }
       
 
       // Populatng the bigram map
@@ -143,7 +155,7 @@ public class BigramModel extends NGramModel {
       }
       //System.out.println(n_1gram_map);
       //System.out.println(ngram_map);
-    }
+    
       myReader.close();
     } catch (FileNotFoundException e) {
       System.out.println("An error occurred.");

@@ -1,11 +1,12 @@
 package code.nlp.lm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class NGramModel {
     
     HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // includes all words that show up 0 times or more
-    HashMap<String, Double> unigram_vocab_map = new HashMap<String, Double>(); // includes the words that show up MORE than 0 times. We use this to get num of unique words
+    ArrayList<String> unigram_vocab = new ArrayList<String>(); //the words that occur at least 2 times,(the number of unique words including UNK) 
     HashMap<NGram, Double> ngram_map = new HashMap<NGram, Double>();
     HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>();
 

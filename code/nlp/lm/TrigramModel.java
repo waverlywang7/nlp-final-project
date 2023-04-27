@@ -22,7 +22,7 @@ public class TrigramModel extends NGramModel {
 
  HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
  ArrayList<String> words_encountered = new ArrayList<String>();
- HashMap<String, Double> unigram_vocab_map = new HashMap<>(); //TODO: Do this! which will be the number of unique words including UNK. 
+ ArrayList<String> unigram_vocab = new ArrayList<String>(); //TODO: num of words that occur at least 2 times, which will be the number of unique words including UNK. 
 
 
 
@@ -45,9 +45,14 @@ public class TrigramModel extends NGramModel {
        for (String word : sentence) {
            if (!words_encountered.contains(word)) {
                word_list.add("<UNK>");
+               // TODO: if unigram_vocab does not contain UNK
+                  // add UNK
                words_encountered.add(word);
            } else {
                word_list.add(word);
+              // TODO:
+              // if unigram_vocab does not contains word
+              // add word to unigram_vocab
            }
        }
 
