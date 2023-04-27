@@ -46,7 +46,7 @@ public class TrigramModel extends NGramModel {
            if (!words_encountered.contains(word)) {
                word_list.add("<UNK>");
                // TODO: if unigram_vocab does not contain UNK
-                  // add UNK
+                  // add UNK to unigram_vocab
                words_encountered.add(word);
            } else {
                word_list.add(word);

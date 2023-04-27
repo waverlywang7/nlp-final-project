@@ -77,7 +77,7 @@ public class BigramModel extends NGramModel {
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
                    // with <UNK>.
             //unigram_map.put(word, 0.0); // keep track if we encountered word
-            if (!words_encountered.contains("<UNK>")){
+            if (!unigram_vocab.contains("<UNK>")){
               unigram_vocab.add("<UNK>");
             }
             words_encountered.add(word);
