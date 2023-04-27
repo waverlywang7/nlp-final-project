@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
-  // TODO: REPLACE VocabTOKENCOUNTS WITH THE UNIGRAM_MAP
   HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
   HashMap<String, Double> unigram_map = new HashMap <String, Double>(); // includes words with 0 count
   HashMap<String, Double> unigram_vocab_map = new HashMap<>(); // includes only word greater than 0 count
@@ -145,7 +144,7 @@ public class BigramModel extends NGramModel {
 
       }
       //System.out.println(n_1gram_map);
-      System.out.println(ngram_map);
+      //System.out.println(ngram_map);
     }
       myReader.close();
     } catch (FileNotFoundException e) {
@@ -158,155 +157,8 @@ public class BigramModel extends NGramModel {
 
 
   public static void main(String[] args) {
-
-    // null poiter execption maybe because i crate a model like this. 
-    BigramModel model = new BigramModel("nlp-final-project/data/training.txt");
-    //System.out.println(ngram_map);
-    //System.out.println(n_1gram_map); 
-
-    // List<Double> list = new ArrayList<Double>();
-    // list.add(.99);
-    // list.add(.9);
-    // list.add(.75);
-    // list.add(.5);
-    // list.add(.25);
-    // list.add(.1);
-    // for (double item : list) {
-    //   System.out.println(item);
-    //   LambdaLMModel model = new LambdaLMModel("data/training.txt", item);
-
-    //   System.out.println(model.getPerplexity("data/development.txt"));
-    // }
+    BigramModel model = new BigramModel("data/training.txt");
   }
-
-  // @Override
-  // public double logProb(ArrayList<String> sentWords) {
-
-  //   String current_word = "<s>";
-  //   sentWords.add("</s>");
-
-  //   double total = 0;
-  //   double probability = 0;
-
-  //   // calculate the log prob of a sentence.
-  //   for (String word : sentWords) {
-
-  //     probability = getBigramProb(current_word, word);
-
-  //     total += Math.log10(probability); // add log prob
-  //     current_word = word;
-  //   }
-  //   return total;
-  // }
-
-  // @Override
-  // public double getPerplexity(String filename) {
-  //   try {
-  //     File myObj = new File(filename);
-  //     Scanner myReader = new Scanner(myObj);
-
-  //     double perplexity = 0;
-  //     double total_log_prob = 0;
-  //     int word_count = 0;
-
-  //     // read through each line of text
-  //     while (myReader.hasNextLine()) {
-  //       String data = myReader.nextLine();
-  //       ArrayList<String> new_data = new ArrayList<>();
-
-  //       // split the text by white space
-  //       String[] new_data_split = data.split("\\s+");
-  //       Collections.addAll(new_data, new_data_split);
-
-  //       // calculate log prob of sentence
-  //       total_log_prob += logProb(new_data);
-  //       word_count += new_data_split.length + 2; // we are accounting for sentence tags
-  //     }
-
-  //     perplexity = Math.pow(10, -1 * (total_log_prob / word_count));
-
-  //     myReader.close();
-  //     return perplexity;
-
-  //   } catch (FileNotFoundException e) {
-  //     System.out.println("An error occurred.");
-  //     e.printStackTrace();
-  //   }
-
-  //   return 0;
-  // }
-
-
-
-
-  // // @Override
-  // public double getBigramProb(String first, String second) { // TODO: THIS GETS BIGRAM PROB AND DOES DISCOUNT TO IT BUT WE'LL DO THIS IN SMOOTHING?
-
-  //   String current_word = first;
-  //   String word = second;
-  //   // NOTE: We will need unigram map for the TRIGRAM!!! so we know if we encountered the word in training!
-  //   if ((!n_1gram_map.containsKey(word)) || n_1gram_map.get(word) == 0) {
-  //     word = "<UNK>";
-  //   }
-
-  //   if ((!n_1gram_map.containsKey(current_word)) || n_1gram_map.get(current_word) == 0) {
-  //     current_word = "<UNK>";
-  //   }
-    
-  //   // TODO: TELL ADAM TO CHECK IF THEY'VE SEEN THE WORD IN TRAINING, IF NOT, MAKE THE WORD UNK. 
-
-
-    
-
-  //   // if bigram exists, calculate the bigram prob using count of bigram and count
-  //   // of bigrams that start with first word
-
-  //   // ArrayList<String> word_list = new ArrayList<String>(); // make ngram object
-  //   // word_list.add(current_word);
-  //   // word_list.add(word);
-  //   // NGram bigram = new NGram(word_list);
-
-  //   // if (this.ngram_map.containsKey(bigram)) {
-  //   //   double bigram_count = this.ngram_map.get(bigram); // get how many times the bigram shows up
-
-  //   //   double total_bigram_count = 0.0;
-  //   //   // count up the number of bigrams that start with the first word of the bigram 
-  //   //   for (String second_word : this.bigram_map.get(current_word).keySet()) { // UMM USE n_1gram_map
-  //   //     total_bigram_count += this.bigram_map.get(current_word).get(second_word);
- 
-  //   //   }
-
-  //   //   // OR HMM.. Maybe instead of doing this we just count of up the unigrams that have the first word? 
-
-  //   //   return (bigram_count - this.discount) / total_bigram_count; // add discount
-
-  //   // } else {
-  //   //   // if bigram has never been encountered, then calculate bigramprob differently
-
-  //   //   double unique_bigrams = this.bigram_map.get(current_word).size();
-  //   //   double total_bigram_count = 0.0;
-  //   //   double denominator = 1.0;
-
-  //   //   // count tokens in the training text
-  //   //   int total_tokens_count = 0;
-  //   //   for (NGram unigram_word : this.n_1gram_map.keySet()) {
-  //   //     total_tokens_count += this.n_1gram_map.get(unigram_word);
-  //   //   }
-    
-
-  //   //   // count the total times a bigram start with first word in bigram
-  //   //   for (String second_word : this.bigram_map.get(current_word).keySet()) {
-  //   //     total_bigram_count += this.bigram_map.get(current_word).get(second_word);
-  //   //     denominator -= this.n_1gram_map.get(second_word) / total_tokens_count; // calculate the deoniminator of alpha
-  //   //   }
-  //   //   double reserved_mass = unique_bigrams * this.discount / total_bigram_count;
-  //   //   double alpha = reserved_mass / denominator;
-
-  //   //   double prob_second_word = n_1gram_map.get(word) / total_tokens_count;
-  //   //   return alpha * prob_second_word;
-  //   // }
-
-  // }
 
   @Override
   public void trainModel() {

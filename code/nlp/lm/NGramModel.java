@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 public abstract class NGramModel {
     
-    HashMap<String, Double> unigram_map;
-    HashMap<NGram, Double> ngram_map;
-    HashMap<NGram, HashMap<NGram, Double>> n_1gram_map;
+    HashMap<String, Double> unigram_map = new HashMap<String, Double>();
+    HashMap<NGram, Double> ngram_map = new HashMap<NGram, Double>();
+    HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>();
 
     public abstract void trainModel();
 
