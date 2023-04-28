@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public abstract class NGramModel {
     
-    HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // includes all words that show up 0 times or more
+   // HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // includes all words that show up 0 times or more
     ArrayList<String> unigram_vocab = new ArrayList<String>(); //the words that occur at least 2 times,(the number of unique words including UNK) 
     HashMap<NGram, Double> ngram_map = new HashMap<NGram, Double>();
     HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>();
@@ -36,7 +36,7 @@ public abstract class NGramModel {
     }
 
     public double getVocabSize() {
-        return (double) this.unigram_map.size();
+        return (double) this.unigram_vocab.size();
     }
 
 }

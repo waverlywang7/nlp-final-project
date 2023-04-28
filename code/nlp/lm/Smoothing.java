@@ -6,13 +6,25 @@ public class Smoothing {
     
 
     public double getNGramProb(NGramModel ngm, NGram ng, double lambda) {
-        // TODO: check in ng through the words,
-        // if we've encountered the word before in training before getting the ngram! replace the word with unk
+
+        ArrayList<String> ng_list = ng.getNGramArrayList(); 
         
+        ArrayList<String> new_ng_list = new ArrayList<String>();
+        // go thru words in ngram, and check if the word was seen in unigram_vocab, if not, replace the word with unk
+        for (String word : ng_list) {
+            // check if word has not been seen in training (in unigram_vocab)
+            if (!ngm.unigram_vocab.contains(word)){
+                // replace the word with UNK
+                new_ng_list.add("<UNK>");
+            }else{
+                new_ng_list.add(word);
+            }
+        }
 
+        NGram new_ng = new NGram(new_ng_list); 
 
-        double ngramCount = ngm.getNGramCount(ng);
-        double n_1gramCount = ngm.getN_1GramCount(ng);
+        double ngramCount = ngm.getNGramCount(new_ng);
+        double n_1gramCount = ngm.getN_1GramCount(new_ng);
         double finalProb = (ngramCount + lambda) / (n_1gramCount + lambda * ngm.getVocabSize());
 
         return finalProb;
