@@ -45,7 +45,7 @@ public class BigramModel extends NGramModel {
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it with <UNK>.
             
             unigram_map.put(word, 0.0);
-            unigram_map.replace("<UNK>", unigram_map.get("<UNK>>") + 1.0);
+            unigram_map.replace("<UNK>", unigram_map.get("<UNK>") + 1.0);
             new_data.add("<UNK>");
 
           }
