@@ -127,18 +127,5 @@ public class TrigramModel extends NGramModel {
    TrigramModel model = new TrigramModel("data/training.txt");
 
  }
-
-
-
-
-
-
-
-
- @Override
- public void trainModel() {
-   // TODO Auto-generated method stub
-   throw new UnsupportedOperationException("Unimplemented method 'trainModel'");
- }
 }
 
