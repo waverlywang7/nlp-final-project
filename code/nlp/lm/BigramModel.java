@@ -83,30 +83,6 @@ public class BigramModel extends NGramModel {
         second_list.add(second_letter);
         NGram second_letter_ngram= new NGram(second_list);
 
-        ArrayList<String> one = new ArrayList<String>();
-        ArrayList<String> two = new ArrayList<String>();
-        one.add("a");
-        one.add("b");
-        two.add("a");
-        two.add("b");
-        NGram one_n = new NGram(one);
-        NGram two_n = new NGram(one);
-        // System.out.println(one_n.equals(two_n));
-        HashSet<ArrayList<String>> hsString = new HashSet<ArrayList<String>>();
-        HashSet<NGram> hsNGram = new HashSet<NGram>();
-        hsString.add(one);
-        // System.out.println(hsString);
-        // System.out.println(hsString.contains(two));
-        hsNGram.add(one_n);
-        // System.out.println(hsNGram);
-        // System.out.println(hsNGram.contains(two_n));
-
-        System.out.println(one.hashCode());
-        System.out.println(two.hashCode());
-        System.out.println(one_n.hashCode());
-        System.out.println(two_n.hashCode());
-        System.out.println("*");
-
 
         // Populate an n_1grammap
         // System.out.println(first_letter_ngram + "first_letter");

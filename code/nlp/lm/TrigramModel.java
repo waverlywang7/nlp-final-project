@@ -127,6 +127,7 @@ public class TrigramModel extends NGramModel {
    TrigramModel model = new TrigramModel("data/training.txt");
 
  }
+<<<<<<< HEAD
 
 
 
@@ -136,5 +137,7 @@ public class TrigramModel extends NGramModel {
 
 
 
+=======
+>>>>>>> 04a965f13b14d21b15a5fdfbb842fb2d961ad526
 }
 
