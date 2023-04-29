@@ -17,11 +17,12 @@ public class BigramModel extends NGramModel {
   HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
   //HashMap<String, Double> unigram_map = new HashMap <String, Double>(); // includes words with 0 count
 
-  ArrayList<String> words_encountered = new ArrayList<String>();
-  ArrayList<String> unigram_vocab = new ArrayList<String>(); // num of words encountered two times or more, the number of unique words including UNK. 
+  // ArrayList<String> words_encountered = new ArrayList<String>();
+  HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // num of words encountered two times or more, the number of unique words including UNK. 
   HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // nested map with has first word then nested second word hashmap
 
   public BigramModel(String filename) {
+    unigram_map.put("<UNK>", 0.0);
     try {
       File myObj = new File(filename);
       Scanner myReader = new Scanner(myObj);
@@ -65,22 +66,19 @@ public class BigramModel extends NGramModel {
           // word_list.add(word);
           // NGram unigram = new NGram(word_list);
 
-          if (words_encountered.contains(word)) {
+          if (unigram_map.containsKey(word)) {
             //unigram_map.put(word, unigram_map.get(word) + 1.0); // if word is already in hashmap, increment count
 
-            if (!unigram_vocab.contains(word)){ // word has been encountered at least two times
-              unigram_vocab.add(word);
-            }
+            unigram_map.replace(word, unigram_map.get(word) + 1.0);
             new_data.add(word); // add word to new_data
             
             
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
                    // with <UNK>.
             //unigram_map.put(word, 0.0); // keep track if we encountered word
-            if (!unigram_vocab.contains("<UNK>")){
-              unigram_vocab.add("<UNK>");
-            }
-            words_encountered.add(word);
+            
+            unigram_map.put(word, 0.0);
+            unigram_map.replace("<UNK>", unigram_map.get("<UNK>>") + 1.0);
             new_data.add("<UNK>");
             //unigram_map.put("<UNK>", unigram_map.get("<UNK>") + 1);// word is already in hashmap add to count
 
