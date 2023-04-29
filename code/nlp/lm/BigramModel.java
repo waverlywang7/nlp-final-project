@@ -27,32 +27,6 @@ public class BigramModel extends NGramModel {
       File myObj = new File(filename);
       Scanner myReader = new Scanner(myObj);
 
-      // ArrayList<String> unk_list = new ArrayList<String>();
-      // unk_list.add("<UNK>");
-      // NGram UNK = new NGram(unk_list);
-
-
-      // ArrayList<String> s_list = new ArrayList<String>();
-      // s_list.add("<s>");
-      // NGram s = new NGram(s_list);
-
-
-      // ArrayList<String> sback_list = new ArrayList<String>();
-      // sback_list.add("</s>");
-      // NGram sback = new NGram(sback_list);
-
-      // initialize <UNK> , </s>, <s> in the unigram map
-      // n_1gram_map.put(UNK, 0);
-      // n_1gram_map.put(s, 0);
-      // n_1gram_map.put(sback, 0);
-
-      // initialize <UNK> , </s>, <s> in the unigram map
-
-      // unigram_map.put("<UNK>", 0.0);
-      //unigram_map.put("<s>", 0.0);
-      //unigram_map.put("</s>", 0.0);
-      
-
       ArrayList<String> new_data = new ArrayList<>(); // will contain <s> </s> and <UNK>
 
       // adding UNK to the file and populating unigram map with vocabulary
@@ -61,46 +35,22 @@ public class BigramModel extends NGramModel {
         data = "<s> " + data + " </s>";
 
         for (String word : data.split("\\s+")) {
-          // create ngram object
-          // ArrayList<String> word_list = new ArrayList<String>(); // a word list that just contains one word
-          // word_list.add(word);
-          // NGram unigram = new NGram(word_list);
 
           if (unigram_map.containsKey(word)) {
-            //unigram_map.put(word, unigram_map.get(word) + 1.0); // if word is already in hashmap, increment count
 
             unigram_map.replace(word, unigram_map.get(word) + 1.0);
-            new_data.add(word); // add word to new_data
+            new_data.add(word);
             
             
-          } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
-                   // with <UNK>.
-            //unigram_map.put(word, 0.0); // keep track if we encountered word
+          } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it with <UNK>.
             
             unigram_map.put(word, 0.0);
             unigram_map.replace("<UNK>", unigram_map.get("<UNK>>") + 1.0);
             new_data.add("<UNK>");
-            //unigram_map.put("<UNK>", unigram_map.get("<UNK>") + 1);// word is already in hashmap add to count
 
           }
         }
-
       }
-
-
-      // // Using for-each loop to get vocab, filtering out any word that has count 0
-      // for (Map.Entry<String, Double> mapElement : unigram_map.entrySet()) {
-      //   String key = mapElement.getKey();
-
-      //   // Adding some bonus marks to all the students
-      //   Double value = mapElement.getValue();
-      //   // check if value greater than 0
-      //   if (value > 0) {
-      //     unigram_vocab_map.put(key, value);
-
-      //   }
-      // }
-      
 
       // Populatng the bigram map
       for (int i = 1; i < new_data.size(); ++i) {
@@ -149,29 +99,18 @@ public class BigramModel extends NGramModel {
             n_1gram_map.get(first_letter_ngram).put(second_letter_ngram, 1.0);
           }
         }
-
       }
-      //System.out.println(n_1gram_map);
-      //System.out.println(ngram_map);
     
       myReader.close();
     } catch (FileNotFoundException e) {
       System.out.println("An error occurred.");
       e.printStackTrace();
-      
     }
-
   }
 
 
   public static void main(String[] args) {
     BigramModel model = new BigramModel("data/training.txt");
-  }
-
-  @Override
-  public void trainModel() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'trainModel'");
   }
 }
 
