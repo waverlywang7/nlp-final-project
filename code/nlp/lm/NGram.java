@@ -16,6 +16,10 @@ public class NGram {
         }
     }
 
+    public ArrayList<String> getNGramArrayList() {
+        return words;
+    }
+
     public NGram getN_1Gram() {
         // subList only works for List<String> so we need to convert the subList
         // back to an ArrayList
@@ -27,7 +31,28 @@ public class NGram {
         return new NGram(ngram_words);
     }
 
-    public ArrayList<String> getNGramArrayList() {
-        return this.words;
+    @Override
+    public String toString() {
+        String wordsString = "";
+        for(String word : words) {
+            wordsString += word + " ";
+        }
+        return wordsString.substring(0, wordsString.length() - 1);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof NGram) {
+            return this.words.equals(((NGram) o).getNGramArrayList());
+        }
+        else {
+            return false;
+        }
+    }
+
+    // for the sake of hashing we need any two objects containing the same stuff to hash to the same thing
+    @Override
+    public int hashCode() {
+        return words.hashCode() * n;
     }
 }

@@ -135,10 +135,6 @@ public class TrigramModel extends NGramModel {
 
 
 
- @Override
- public void trainModel() {
-   // TODO Auto-generated method stub
-   throw new UnsupportedOperationException("Unimplemented method 'trainModel'");
- }
+
 }
 

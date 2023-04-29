@@ -45,7 +45,7 @@ public class BigramModel extends NGramModel {
           } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it with <UNK>.
             
             unigram_map.put(word, 0.0);
-            unigram_map.replace("<UNK>", unigram_map.get("<UNK>>") + 1.0);
+            unigram_map.replace("<UNK>", unigram_map.get("<UNK>") + 1.0);
             new_data.add("<UNK>");
 
           }
@@ -83,18 +83,53 @@ public class BigramModel extends NGramModel {
         second_list.add(second_letter);
         NGram second_letter_ngram= new NGram(second_list);
 
+        ArrayList<String> one = new ArrayList<String>();
+        ArrayList<String> two = new ArrayList<String>();
+        one.add("a");
+        one.add("b");
+        two.add("a");
+        two.add("b");
+        NGram one_n = new NGram(one);
+        NGram two_n = new NGram(one);
+        // System.out.println(one_n.equals(two_n));
+        HashSet<ArrayList<String>> hsString = new HashSet<ArrayList<String>>();
+        HashSet<NGram> hsNGram = new HashSet<NGram>();
+        hsString.add(one);
+        // System.out.println(hsString);
+        // System.out.println(hsString.contains(two));
+        hsNGram.add(one_n);
+        // System.out.println(hsNGram);
+        // System.out.println(hsNGram.contains(two_n));
+
+        System.out.println(one.hashCode());
+        System.out.println(two.hashCode());
+        System.out.println(one_n.hashCode());
+        System.out.println(two_n.hashCode());
+        System.out.println("*");
+
+
         // Populate an n_1grammap
+        // System.out.println(first_letter_ngram + "first_letter");
+        // System.out.println(n_1gram_map + "n_1gram_map");
         if (!n_1gram_map.containsKey(first_letter_ngram)) {
+          //System.out.println("I DONT CONTAIN THE WORD");
           HashMap<NGram, Double> second_letter_map = new HashMap<>();
           second_letter_map.put(second_letter_ngram, 1.0);
           n_1gram_map.put(first_letter_ngram, second_letter_map);
-
+          // ArrayList<String> randolist = new ArrayList<String>();
+          // randolist.add(first_letter_ngram.toString());
+          // NGram new_guy = new NGram(randolist);
+          // System.out.println(first_letter_ngram.toString().equals(new_guy.toString()));
+          // System.out.println(n_1gram_map.containsKey(new_guy));
+          //System.out.println("I GOT HERE AHHH BSHFJGBKSJDYGF");
         } else {
           // if the first letter is there check if second letter exists in nested map
           if (n_1gram_map.get(first_letter_ngram).containsKey(second_letter_ngram)) {
             // update the count
+            System.out.println("I GOT HERE");
             n_1gram_map.get(first_letter_ngram).put(second_letter_ngram, n_1gram_map.get(first_letter_ngram).get(second_letter_ngram) + 1);
           } else {
+            System.out.println("I GOT HERE AHHH");
             // make new nested second letter key and update
             n_1gram_map.get(first_letter_ngram).put(second_letter_ngram, 1.0);
           }
