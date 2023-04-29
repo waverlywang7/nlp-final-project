@@ -13,7 +13,7 @@ public class Smoothing {
         // go thru words in ngram, and check if the word was seen in unigram_vocab, if not, replace the word with unk
         for (String word : ng_list) {
             // check if word has not been seen in training (in unigram_vocab)
-            if (!ngm.unigram_vocab.contains(word)){
+            if (!ngm.unigram_map.containsKey(word)){
                 // replace the word with UNK
                 new_ng_list.add("<UNK>");
             }else{
