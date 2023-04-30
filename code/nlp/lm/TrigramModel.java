@@ -29,6 +29,8 @@ public class TrigramModel extends NGramModel {
 
  public TrigramModel(String filename) {
   unigram_map.put("<UNK>", 0.0);
+  unigram_map.put("<s>", 0.0); // do this because we don't want to replace the first instance of <s> and </s>
+  unigram_map.put("</s>", 0.0);
    try {
      File myObj = new File(filename);
      Scanner myReader = new Scanner(myObj);
@@ -127,17 +129,5 @@ public class TrigramModel extends NGramModel {
    TrigramModel model = new TrigramModel("data/training.txt");
 
  }
-<<<<<<< HEAD
-
-
-
-
-
-
-
-
-
-=======
->>>>>>> 04a965f13b14d21b15a5fdfbb842fb2d961ad526
 }
 

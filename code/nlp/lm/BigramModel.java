@@ -23,6 +23,8 @@ public class BigramModel extends NGramModel {
 
   public BigramModel(String filename) {
     unigram_map.put("<UNK>", 0.0);
+    unigram_map.put("<s>", 0.0); // do this because we don't want to replace the first instance of <s> and </s>
+    unigram_map.put("</s>", 0.0);
     try {
       File myObj = new File(filename);
       Scanner myReader = new Scanner(myObj);
@@ -102,10 +104,10 @@ public class BigramModel extends NGramModel {
           // if the first letter is there check if second letter exists in nested map
           if (n_1gram_map.get(first_letter_ngram).containsKey(second_letter_ngram)) {
             // update the count
-            System.out.println("I GOT HERE");
+   
             n_1gram_map.get(first_letter_ngram).put(second_letter_ngram, n_1gram_map.get(first_letter_ngram).get(second_letter_ngram) + 1);
           } else {
-            System.out.println("I GOT HERE AHHH");
+         
             // make new nested second letter key and update
             n_1gram_map.get(first_letter_ngram).put(second_letter_ngram, 1.0);
           }
