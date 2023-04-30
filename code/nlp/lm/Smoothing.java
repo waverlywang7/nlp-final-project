@@ -96,13 +96,20 @@ public class Smoothing {
       double reserved_mass = unique_bigrams * discount / total_n_1gram_count;
       double alpha = reserved_mass / denominator;
 
-
-     // if the ng is a bigram, ba we multiply alpha by probability of a out of number of tokens
+      
+      // if the ng is a bigram, ba then calculate alpha * (prob(a) / of number of tokens)
+      if (new_ng_list.size() ==  2) {
+     
       String last_word = new_ng_list.get(-1); // get last_word in n_gram
       double prob_next_word = ngm.unigram_map.get(last_word) / total_tokens_count;  
       return alpha * prob_next_word; 
+      } else if (new_ng_list.size() ==  3) {
+      // if the ng is trigram "bac" we will mutltiply alpha * p(c | a) = count(a,next_word)/ p(a)
+      String last_word = new_ng_list.get(-1); // get last_word in n_gram
+      // TODO: FINISH LATER... 
 
-      // if the ng is trigram, bac, we will mutltiply alpha by  p(c | a) = count(a,next_word)/ p(a)
+      }
+
     }
 
     
