@@ -92,7 +92,10 @@ public class Smoothing {
       // count the total times a bigram start with first word in bigram. For "bac", count(ba)
       for (NGram next_word : ngm.n_1gram_map.get(n_1gram).keySet()) {
         total_n_1gram_count += ngm.n_1gram_map.get(n_1gram).get(next_word);  // TODO: replace with total_n_1gram_count with ngm.getn_1gramcount(ng) once working
-        denominator -= ngm.unigram_map.get(next_word) / total_tokens_count; // calculate the deoniminator of alpha
+        
+        ArrayList<String> word_list = next_word.getNGramArrayList(); // extract string in next_word
+        
+        denominator -= ngm.unigram_map.get(word_list.get(0)) / total_tokens_count; // calculate the deoniminator of alpha
       } 
       double reserved_mass = unique_bigrams * discount / total_n_1gram_count;
       double alpha = reserved_mass / denominator;
