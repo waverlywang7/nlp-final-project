@@ -6,7 +6,7 @@ public class Smoothing {
     
 
     public double getNGramProb(NGramModel ngm, NGram ng, double lambda) {
-
+        //System.out.println(ngm.n_1gram_map + "wee"); // UH OH why isn't the n_1gram_map here... 
         ArrayList<String> ng_list = ng.getNGramArrayList(); 
         
         ArrayList<String> new_ng_list = new ArrayList<String>();
@@ -53,14 +53,12 @@ public class Smoothing {
 
     // if bigram exists, calculate the bigram prob using count of bigram and count
     // of bigrams that start with first word
-   
-
     if (ngm.ngram_map.containsKey(new_ng))  {
       
       double ngram_count = ngm.ngram_map.get(new_ng); // for trigram 'bac' find count(ba) get how many times the bigram shows up // TODO: replace with getNgramCount(ng) later... once working..
 
 
-      // TODO: replace this with sum = getn_1gram(ng) later once we get it working. For trigram, count(bax)
+      // TODO: replace this with double sum = getn_1gram(ng) later once we get it working. For trigram, count(bax)
       NGram n_1gram = new_ng.getN_1Gram();
       HashMap<NGram, Double> nestedMap = ngm.n_1gram_map.get(n_1gram);
       System.out.println(ngm.n_1gram_map + "n_1gram_map");
@@ -73,14 +71,17 @@ public class Smoothing {
       }
       // TODO: above
 
-      return (ngram_count - discount) / sum; // add discount
+      return (ngram_count - discount)/ sum; // add discount
 
     } else {
+
+      double prob = 0; // final prob
+
       // if bigram has never been encountered, then calculate bigramprob differently
       NGram n_1gram = new_ng.getN_1Gram();
       double unique_bigrams = ngm.n_1gram_map.get(n_1gram).size(); // how many unique words start with b 
      
-      double total_n_1gram_count = 0.0;
+      double total_n_1gram_count = 0.0; 
       double denominator = 1.0;
       // count tokens in the training text
       int total_tokens_count = 0;
@@ -90,9 +91,9 @@ public class Smoothing {
 
       // count the total times a bigram start with first word in bigram. For "bac", count(ba)
       for (NGram next_word : ngm.n_1gram_map.get(n_1gram).keySet()) {
-        total_n_1gram_count += ngm.n_1gram_map.get(n_1gram).get(next_word);
+        total_n_1gram_count += ngm.n_1gram_map.get(n_1gram).get(next_word);  // TODO: replace with total_n_1gram_count with ngm.getn_1gramcount(ng) once working
         denominator -= ngm.unigram_map.get(next_word) / total_tokens_count; // calculate the deoniminator of alpha
-      }
+      } 
       double reserved_mass = unique_bigrams * discount / total_n_1gram_count;
       double alpha = reserved_mass / denominator;
 
@@ -100,17 +101,40 @@ public class Smoothing {
       // if the ng is a bigram, ba then calculate alpha * (prob(a) / of number of tokens)
       if (new_ng_list.size() ==  2) {
      
-      String last_word = new_ng_list.get(-1); // get last_word in n_gram
-      double prob_next_word = ngm.unigram_map.get(last_word) / total_tokens_count;  
-      return alpha * prob_next_word; 
+        String last_word = new_ng_list.get(-1); // get last_word in n_gram
+        double prob_next_word = ngm.unigram_map.get(last_word) / total_tokens_count;  
+        prob = alpha * prob_next_word; 
+
       } else if (new_ng_list.size() ==  3) {
-      // if the ng is trigram "bac" we will mutltiply alpha * p(c | a) = count(a,next_word)/ p(a)
-      String last_word = new_ng_list.get(-1); // get last_word in n_gram
-      // TODO: FINISH LATER... 
+      //for trigram "bac", we will mutltiply alpha * p(c | a) = count(a,c)/ count(a)
+
+         // get (a, c) out of the new_ng_list (b, a, c)
+        List<String> list_words = new_ng_list.subList(1, 2);
+        ArrayList<String> ngram_words = new ArrayList<String>();
+        for (String word : list_words) {
+            ngram_words.add(word);
+        }
+        
+        HashMap<NGram, Double> lasttwoword_map = ngm.n_1gram_map.get(ngram_words); 
+        double sum = 0.0; // count(a,c)
+        for(NGram key : lasttwoword_map.keySet()) {
+            
+            sum += lasttwoword_map.get(key);
+        }
+
+        String second_word = new_ng_list.get(1);
+        double count_secondword = ngm.unigram_map.get(second_word); // count(a)
+
+        prob = alpha * (sum/count_secondword); //for trigram "bac", we will mutltiply alpha * p(c | a) = count(a,c)/ count(a)
+
+
 
       }
 
+      return prob;
+
     }
+
 
     
     }
@@ -128,7 +152,12 @@ public class Smoothing {
         test_words.add("the");
         test_words.add("station");
         Smoothing smoother = new Smoothing();
+
+        System.out.println(model.n_1gram_map + "n_1gram_map hello");  // wait so there is a n_1gram_map...
         System.out.println(smoother.getNGramProb(model, new NGram(test_words), 0.5));
+        
+        //System.out.println(smoother.getNGramProbDiscount(model, new NGram(test_words), 0.5));
+        
 
     }
 
