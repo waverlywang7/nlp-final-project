@@ -14,12 +14,12 @@ import java.util.*;
 import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
-  HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
-  //HashMap<String, Double> unigram_map = new HashMap <String, Double>(); // includes words with 0 count
+  // HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
+  // //HashMap<String, Double> unigram_map = new HashMap <String, Double>(); // includes words with 0 count
 
-  // ArrayList<String> words_encountered = new ArrayList<String>();
-  HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // num of words encountered two times or more, the number of unique words including UNK. 
-  HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // nested map with has first word then nested second word hashmap
+  // // ArrayList<String> words_encountered = new ArrayList<String>();
+  // HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // num of words encountered two times or more, the number of unique words including UNK. 
+  // HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // nested map with has first word then nested second word hashmap
 
   public BigramModel(String filename) {
     unigram_map.put("<UNK>", 0.0);
@@ -69,7 +69,7 @@ public class BigramModel extends NGramModel {
 
 
         if (!ngram_map.containsKey(bigram)) { // TODO: REPLACE WITH n-GRAM OBJECT. 
-          ngram_map.put(bigram, 1);
+          ngram_map.put(bigram, 1.0);
         } else {
           ngram_map.put(bigram, (ngram_map.get(bigram) + 1));
 
