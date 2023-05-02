@@ -16,6 +16,7 @@ import java.util.HashMap;
 
 
 public class TrigramModel extends NGramModel {
+
   //static HashMap<NGram, Double> ngram_map = new HashMap<NGram, Double>(); //bigram map
   //HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // unigram map
 
@@ -27,6 +28,7 @@ public class TrigramModel extends NGramModel {
 
 
  public TrigramModel(String filename) {
+  n=3;
   unigram_map.put("<UNK>", 0.0);
   unigram_map.put("<s>", 0.0); // do this because we don't want to replace the first instance of <s> and </s>
   unigram_map.put("</s>", 0.0);

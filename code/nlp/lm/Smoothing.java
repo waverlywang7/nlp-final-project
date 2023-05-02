@@ -1,6 +1,8 @@
 package code.nlp.lm;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 public class Smoothing {
     
@@ -128,19 +130,19 @@ public class Smoothing {
                 for (String word : list_words) {
                     ngram_words.add(word);
                 }
-                NGram ngram_ngram = new NGram(ngram_words);
-                HashMap<NGram, Double> lasttwoword_map = ngm.n_1gram_map.get(ngram_ngram); 
-                double sum = 0.0; // count(a,c)
-                for(NGram key : lasttwoword_map.keySet()) {
-                    
-                    sum += lasttwoword_map.get(key);
-                }
+                ngram_words.add("w");
+                System.out.println(ngram_words + "this");
+
+                NGram count_y_z = new NGram(ngram_words);
+                System.out.println(ngm.n_1gram_map + "lasttwoword");
+                double sum_count_y_z = ngm.getN_1GramCount(count_y_z); 
+
 
                 String second_word = new_ng_list.get(1);
                 double count_secondword = ngm.unigram_map.get(second_word); // count(a)
                 System.out.println(alpha + "alpha");
-                System.out.println((sum/count_secondword));
-                prob = alpha * (sum/count_secondword);
+                System.out.println((sum_count_y_z /count_secondword));
+                prob = alpha * (sum_count_y_z /count_secondword);
 
             }
 
@@ -148,6 +150,44 @@ public class Smoothing {
 
         }
     
+    }
+
+    public String predict_next_word(ArrayList<String> sentence, NGramModel ngm){
+        int ngram_length = ngm.getLength();
+        int randomNum = ThreadLocalRandom.current().nextInt(ngram_length-1, sentence.size());
+
+        String last_word = sentence.get(randomNum);
+        // ArrayList<String> last_word_list = new ArrayList<>();
+        // last_word_list.add(last_word);
+        // NGram last_word_ngram = new NGram(last_word_list);
+        // // take the last word in the sentence. 
+
+        double max = 0.0; 
+        String best_word = "";
+        ArrayList<String> predictor_words = new ArrayList<String>();
+        for (int i = randomNum - ngram_length+1; i <= randomNum; i++) {
+            predictor_words.add(sentence.get(i));
+        }
+        NGram predictor_ngram = new NGram(predictor_words);
+        System.out.println("predictor: " + predictor_ngram.toString());
+        // if predictor_ngram doesn't exist
+        if (!ngm.n_1gram_map.containsKey(predictor_ngram)){
+            // choose most popular word by unigram
+            
+        } else {
+
+        HashMap<NGram, Double> map = ngm.n_1gram_map.get(predictor_ngram);
+        for (NGram word : map.keySet()) {
+            if (map.get(word) > max) {
+                max = map.get(word);
+                best_word = word.toString();
+            }
+        }
+    }
+        
+        System.out.println("actual word: " + last_word);
+        System.out.println("predicted word: " + best_word);
+        return best_word;  
     }
 
 
@@ -180,7 +220,14 @@ public class Smoothing {
         }
         //System.out.println(tm.n_1gram_map + "n_1gram_map hello");  
         System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));   
-        System.out.println(smoother.getNGramProbDiscount(tm, new NGram(test_words1), .2) + "WOAH");  
+        //System.out.println(smoother.getNGramProbDiscount(tm, new NGram(test_words1), .2) + "WOAH");  
+        ArrayList<String> test_sentence = new ArrayList<String>();
+        test_sentence.add("b");
+        test_sentence.add("b");
+        test_sentence.add("b");
+        test_sentence.add("b");
+        test_sentence.add("c");
+        smoother.predict_next_word(test_sentence, model);
 
     }
 

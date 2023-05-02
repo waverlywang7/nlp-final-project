@@ -16,6 +16,7 @@ import java.util.HashMap;
 public class BigramModel extends NGramModel {
 
   public BigramModel(String filename) {
+    n = 2;
     unigram_map.put("<UNK>", 0.0);
     unigram_map.put("<s>", 0.0); // do this because we don't want to replace the first instance of <s> and </s>
     unigram_map.put("</s>", 0.0);

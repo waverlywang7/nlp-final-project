@@ -16,6 +16,8 @@ public class NGram {
         }
     }
 
+
+
     public ArrayList<String> getNGramArrayList() {
         return words;
     }
