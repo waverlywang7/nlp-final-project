@@ -30,11 +30,12 @@ public abstract class NGramModel {
     // to return count(aa) pass in the ngram "aad"
     public double getN_1GramCount(NGram ng) { 
         NGram n_1gram = ng.getN_1Gram();
-        System.out.println(n_1gram + " n_1gram");
-        System.out.println(n_1gram_map + " n_1gram_map");
+
+        if (!n_1gram_map.containsKey(n_1gram)) {
+            return 0.0;
+        }
         
         HashMap<NGram, Double> nestedMap = n_1gram_map.get(n_1gram);
-        System.out.println(nestedMap + " nestedMap");
         double sum = 0.0;
        
         for(NGram key : nestedMap.keySet()) {

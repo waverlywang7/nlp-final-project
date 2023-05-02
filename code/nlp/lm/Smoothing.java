@@ -1,8 +1,12 @@
 package code.nlp.lm;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+
+import javax.swing.UIManager;
 
 public class Smoothing {
     
@@ -152,20 +156,17 @@ public class Smoothing {
     
     }
 
-    public String predict_next_word(ArrayList<String> sentence, NGramModel ngm){
+    public Boolean predict_next_word(ArrayList<String> sentence, NGramModel ngm, double lambda){
         int ngram_length = ngm.getLength();
         int randomNum = ThreadLocalRandom.current().nextInt(ngram_length-1, sentence.size());
 
         String last_word = sentence.get(randomNum);
-        // ArrayList<String> last_word_list = new ArrayList<>();
-        // last_word_list.add(last_word);
-        // NGram last_word_ngram = new NGram(last_word_list);
-        // // take the last word in the sentence. 
 
         double max = 0.0; 
+        double count_max = 0;
         String best_word = "";
         ArrayList<String> predictor_words = new ArrayList<String>();
-        for (int i = randomNum - ngram_length+1; i <= randomNum; i++) {
+        for (int i = randomNum - ngram_length+1; i < randomNum; i++) {
             predictor_words.add(sentence.get(i));
         }
         NGram predictor_ngram = new NGram(predictor_words);
@@ -173,61 +174,79 @@ public class Smoothing {
         // if predictor_ngram doesn't exist
         if (!ngm.n_1gram_map.containsKey(predictor_ngram)){
             // choose most popular word by unigram
-            
-        } else {
-
-        HashMap<NGram, Double> map = ngm.n_1gram_map.get(predictor_ngram);
-        for (NGram word : map.keySet()) {
-            if (map.get(word) > max) {
-                max = map.get(word);
-                best_word = word.toString();
+            for (String word : ngm.unigram_map.keySet()) {
+                if (ngm.unigram_map.get(word) > count_max) {
+                    count_max = ngm.unigram_map.get(word);
+                    best_word = word;
+                }
             }
+        } else {
+            HashMap<NGram, Double> map = ngm.n_1gram_map.get(predictor_ngram);
+            for (NGram word : map.keySet()) {
+                predictor_words.add(word.toString());
+                NGram new_predictor_ngram = new NGram(predictor_words);
+                double probability = this.getNGramProbLambda(ngm, new_predictor_ngram, lambda);
+                if (probability > max) {
+                    max = probability;
+                    best_word = word.toString();
+                }
         }
     }
         
         System.out.println("actual word: " + last_word);
         System.out.println("predicted word: " + best_word);
-        return best_word;  
+        return best_word == last_word;  
     }
 
 
     public static void main(String[] args) {
-        BigramModel model = new BigramModel("nlp-final-project/data/test2");
-        for (NGram key : model.n_1gram_map.keySet()) {
-            for (NGram innerKey : model.n_1gram_map.get(key).keySet()) {
-                System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + model.n_1gram_map.get(key).get(innerKey));
-            }
-        }
-        ArrayList<String> test_words = new ArrayList<String>();
-        test_words.add("a");
-        test_words.add("b");
-        test_words.add("a");
-
-        ArrayList<String> test_words1 = new ArrayList<String>();
-        test_words1.add("a");
-        test_words1.add("b");
-        test_words1.add("z");
+        BigramModel model = new BigramModel("data/sentences");
+        // for (NGram key : model.n_1gram_map.keySet()) {
+        //     for (NGram innerKey : model.n_1gram_map.get(key).keySet()) {
+        //         System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + model.n_1gram_map.get(key).get(innerKey));
+        //     }
+        // }
         Smoothing smoother = new Smoothing();
-
         
         
-        TrigramModel tm = new TrigramModel("nlp-final-project/data/test2");
-        for (NGram key : tm.n_1gram_map.keySet()) {
-            for(NGram innerKey : tm.n_1gram_map.get(key).keySet()) {
-                // System.out.println("* " + innerKey);
-                System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + tm.n_1gram_map.get(key).get(innerKey));
-            }
-        }
+        // TrigramModel tm = new TrigramModel("data/test2");
+        // for (NGram key : tm.n_1gram_map.keySet()) {
+        //     for(NGram innerKey : tm.n_1gram_map.get(key).keySet()) {
+        //         // System.out.println("* " + innerKey);
+        //         System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + tm.n_1gram_map.get(key).get(innerKey));
+        //     }
+        // }
         //System.out.println(tm.n_1gram_map + "n_1gram_map hello");  
-        System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));   
+        //System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));   
         //System.out.println(smoother.getNGramProbDiscount(tm, new NGram(test_words1), .2) + "WOAH");  
-        ArrayList<String> test_sentence = new ArrayList<String>();
-        test_sentence.add("b");
-        test_sentence.add("b");
-        test_sentence.add("b");
-        test_sentence.add("b");
-        test_sentence.add("c");
-        smoother.predict_next_word(test_sentence, model);
+        
+        int correct_count = 0;
+        int total_count = 0;
+        try {
+            File myObj = new File("data/testing.txt");
+            Scanner myReader = new Scanner(myObj);
+
+            while (myReader.hasNextLine()) {
+                ArrayList<String> sentence = new ArrayList<>(); // will contain <s> </s> and <UNK>
+                String data = myReader.nextLine();
+                data = "<s> " + data + " </s>";
+                for (String word : data.split("\\s+")) {
+                    sentence.add(word);
+                }
+                if (smoother.predict_next_word(sentence, model, 0.0)) {
+                    correct_count += 1;
+                }
+                total_count += 1;
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+        System.out.println("correct count: " + correct_count);
+        System.out.println("total count: " + total_count);
+
 
     }
 
