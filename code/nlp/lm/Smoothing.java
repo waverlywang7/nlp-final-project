@@ -51,6 +51,9 @@ public class Smoothing {
         if (ngm.ngram_map.containsKey(new_ng))  {
             double ngram_count = ngm.ngram_map.get(new_ng);
             double n_1gram_count = ngm.getN_1GramCount(new_ng); 
+            System.out.println("here instead");
+            System.out.println(ngram_count);
+            System.out.println(n_1gram_count);
             return (ngram_count - discount)/ n_1gram_count;
 
         }
@@ -89,21 +92,29 @@ public class Smoothing {
 
             }
             else if (new_ng_list.size() ==  3) {
+                System.out.println("here");
+            
 
                 ArrayList<String> new_ng_al = new_ng.getNGramArrayList();
-                ArrayList<String> middle_ng_al = (ArrayList<String>) new_ng_al.subList(1, new_ng_al.size()-2);
+                List<String> middle_ng_list = new_ng_al.subList(1, new_ng_al.size()-2);
+
+                ArrayList<String> middle_ng_al = new ArrayList<String>(middle_ng_list);
+                System.out.println(middle_ng_al + " middle");
                 NGram middle_ng = new NGram(middle_ng_al);
 
                 for (NGram last_word_as_ngram : ngm.n_1gram_map.get(n_1gram).keySet()) {
                     // denom -= bigram probability of last word given middle_ngram
-                    String last_word_as_str = last_word_as_ngram.getNGramArrayList().get(0);
-                    ArrayList<String> shifted_n_1_gram = (ArrayList<String>) middle_ng_al.clone();
-                    shifted_n_1_gram.add(last_word_as_str);
-                    shifted_n_1_gram.add(last_word_as_str); // add it a second time since getN_1GramCount automatically removes the last word in the ngram
-                    NGram cur_ng = new NGram(shifted_n_1_gram);
+                    //String last_word_as_str = last_word_as_ngram.getNGramArrayList().get(0);
 
+                    List<String> shifted_n_1_gram = (List<String>) middle_ng_al.clone();
+                    shifted_n_1_gram.add(new_ng_list.get(0)); // first and second letter
+                    shifted_n_1_gram.add(new_ng_list.get(1)); 
+                    shifted_n_1_gram.add("w"); // add it a second time since getN_1GramCount automatically removes the last word in the ngram
+                    NGram cur_ng = new NGram(shifted_n_1_gram);
+                    System.out.println(cur_ng.toString() +" curr");
                     double cur_ng_count = ngm.getN_1GramCount(cur_ng);
-                    double middle_ng_count = ngm.unigram_map.get(middle_ng);
+                    // double middle_ng_count = ngm.unigram_map.get(middle_ng);
+                    double middle_ng_count = ngm.unigram_map.get(new_ng_list.get(1));
 
                     denominator -= cur_ng_count / middle_ng_count;
                 }
@@ -112,13 +123,13 @@ public class Smoothing {
 
 
                 //for trigram "bac", we will mutltiply alpha * p(c | a) = count(a,c)/ count(a)
-                List<String> list_words = new_ng_list.subList(1, 2);
+                List<String> list_words = new_ng_list.subList(1, 3);
                 ArrayList<String> ngram_words = new ArrayList<String>();
                 for (String word : list_words) {
                     ngram_words.add(word);
                 }
-                
-                HashMap<NGram, Double> lasttwoword_map = ngm.n_1gram_map.get(ngram_words); 
+                NGram ngram_ngram = new NGram(ngram_words);
+                HashMap<NGram, Double> lasttwoword_map = ngm.n_1gram_map.get(ngram_ngram); 
                 double sum = 0.0; // count(a,c)
                 for(NGram key : lasttwoword_map.keySet()) {
                     
@@ -127,7 +138,8 @@ public class Smoothing {
 
                 String second_word = new_ng_list.get(1);
                 double count_secondword = ngm.unigram_map.get(second_word); // count(a)
-
+                System.out.println(alpha + "alpha");
+                System.out.println((sum/count_secondword));
                 prob = alpha * (sum/count_secondword);
 
             }
@@ -140,7 +152,7 @@ public class Smoothing {
 
 
     public static void main(String[] args) {
-        BigramModel model = new BigramModel("data/test2");
+        BigramModel model = new BigramModel("nlp-final-project/data/test2");
         for (NGram key : model.n_1gram_map.keySet()) {
             for (NGram innerKey : model.n_1gram_map.get(key).keySet()) {
                 System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + model.n_1gram_map.get(key).get(innerKey));
@@ -150,19 +162,25 @@ public class Smoothing {
         test_words.add("a");
         test_words.add("b");
         test_words.add("a");
+
+        ArrayList<String> test_words1 = new ArrayList<String>();
+        test_words1.add("a");
+        test_words1.add("b");
+        test_words1.add("z");
         Smoothing smoother = new Smoothing();
 
         
         
-        TrigramModel tm = new TrigramModel("data/test2");
+        TrigramModel tm = new TrigramModel("nlp-final-project/data/test2");
         for (NGram key : tm.n_1gram_map.keySet()) {
             for(NGram innerKey : tm.n_1gram_map.get(key).keySet()) {
                 // System.out.println("* " + innerKey);
                 System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + tm.n_1gram_map.get(key).get(innerKey));
             }
         }
-        System.out.println(tm.n_1gram_map + "n_1gram_map hello");  
-        System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));    
+        //System.out.println(tm.n_1gram_map + "n_1gram_map hello");  
+        System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));   
+        System.out.println(smoother.getNGramProbDiscount(tm, new NGram(test_words1), .2) + "WOAH");  
 
     }
 
