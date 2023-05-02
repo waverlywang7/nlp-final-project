@@ -34,12 +34,9 @@ public class TrigramModel extends NGramModel {
      File myObj = new File(filename);
      Scanner myReader = new Scanner(myObj);
 
-
-     ArrayList<String> new_data = new ArrayList<>(); // will contain <s> </s> and <UNK>
-
-
      // adding UNK to the file and populating unigram map with vocabulary
      while (myReader.hasNextLine()) {
+       ArrayList<String> new_data = new ArrayList<>(); // will contain <s> </s> and <UNK>
        String data = myReader.nextLine();
        data = "<s> " + data + " </s>";
        for (String word : data.split("\\s+")) {
@@ -66,6 +63,7 @@ public class TrigramModel extends NGramModel {
 
         }
       }
+      System.out.println(new_data);
 
 
        for (int i = 0; i < new_data.size()-2; i++) {
@@ -90,10 +88,6 @@ public class TrigramModel extends NGramModel {
          } else {
            bigram_map.put(last_word, bigram_map.get(last_word) + 1);
          }
-
-
-         n_1gram_map.put(bigram, bigram_map);
-
 
          ngram_words.add(new_data.get(i+2));
          NGram trigram = new NGram(ngram_words);
