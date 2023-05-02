@@ -5,7 +5,7 @@ import java.util.*;
 public class Smoothing {
     
 
-    public double getNGramProb(NGramModel ngm, NGram ng, double lambda) {
+    public double getNGramProbLambda(NGramModel ngm, NGram ng, double lambda) {
         //System.out.println(ngm.n_1gram_map + "wee"); // UH OH why isn't the n_1gram_map here... 
         ArrayList<String> ng_list = ng.getNGramArrayList(); 
         
@@ -37,9 +37,7 @@ public class Smoothing {
         ArrayList<String> new_ng_list = new ArrayList<String>();
         // go thru words in ngram, and check if the word was seen in unigram_vocab, if not, replace the word with unk
         for (String word : ng_list) {
-            // check if word has not been seen in training (in unigram_vocab)
             if (!ngm.unigram_map.containsKey(word)){
-                // replace the word with UNK
                 new_ng_list.add("<UNK>");
             }else{
                 new_ng_list.add(word);
@@ -49,97 +47,96 @@ public class Smoothing {
         NGram new_ng = new NGram(new_ng_list); 
 
 
-        // if bigram exists, calculate the bigram prob using count of bigram and count
-        // of bigrams that start with first word
+        // if bigram exists, calculate the bigram prob using count of ngram and count of n_1grams
         if (ngm.ngram_map.containsKey(new_ng))  {
-        
-        double ngram_count = ngm.ngram_map.get(new_ng); // for trigram 'bac' find count(ba) get how many times the bigram shows up // TODO: replace with getNgramCount(ng) later... once working..
+            double ngram_count = ngm.ngram_map.get(new_ng);
+            double n_1gram_count = ngm.getN_1GramCount(new_ng); 
+            return (ngram_count - discount)/ n_1gram_count;
 
-
-        // TODO: replace this with double sum = getn_1gram(ng) later once we get it working. For trigram, count(bax)
-        NGram n_1gram = new_ng.getN_1Gram();
-        HashMap<NGram, Double> nestedMap = ngm.n_1gram_map.get(n_1gram);
-        System.out.println(ngm.n_1gram_map + "n_1gram_map");
-        System.out.println(n_1gram.getClass()+ "n_1gram");
-        
-        double sum = 0.0; // n_1gram sum
-        for(NGram key : nestedMap.keySet()) {
-            
-            sum += nestedMap.get(key);
-        }
-        // TODO: above
-
-        return (ngram_count - discount)/ sum; // add discount
-
-        } else {
-
-        double prob = 0; // final prob
-
-        // if bigram has never been encountered, then calculate bigramprob differently
-        NGram n_1gram = new_ng.getN_1Gram();
-        double unique_bigrams = ngm.n_1gram_map.get(n_1gram).size(); // how many unique words start with b 
-        
-        double total_n_1gram_count = 0.0; 
-        double denominator = 1.0;
-        // count tokens in the training text
-        int total_tokens_count = 0;
-        for (String unigram_word : ngm.unigram_map.keySet()) {
-            total_tokens_count += ngm.unigram_map.get(unigram_word);
         }
 
-        // count the total times a bigram start with first word in bigram. For "bac", count(ba)
-        for (NGram next_word : ngm.n_1gram_map.get(n_1gram).keySet()) {
-            total_n_1gram_count += ngm.n_1gram_map.get(n_1gram).get(next_word);  // TODO: replace with total_n_1gram_count with ngm.getn_1gramcount(ng) once working
+        else {
+
+            double prob = 0; // final prob to return
+
+            // if bigram has never been encountered, then calculate bigramprob differently
+            NGram n_1gram = new_ng.getN_1Gram();
+            double unique_bigrams = ngm.n_1gram_map.get(n_1gram).size(); // how many unique words start with the n_1gram
+            double n_1gram_count = ngm.getN_1GramCount(new_ng); 
+            double reserved_mass = unique_bigrams * discount / n_1gram_count;
+
+            double denominator = 1.0;
             
-            ArrayList<String> word_list = next_word.getNGramArrayList(); // extract string in next_word
+            // if the ng is a bigram, ba then calculate alpha * (prob(a) / of number of tokens)
+            if (new_ng_list.size() ==  2) {
             
-            denominator -= ngm.unigram_map.get(word_list.get(0)) / total_tokens_count; // calculate the deoniminator of alpha
-        } 
-        double reserved_mass = unique_bigrams * discount / total_n_1gram_count;
-        double alpha = reserved_mass / denominator;
+                 // count tokens in the training text
+                int total_tokens_count = 0;
+                for (String unigram_word : ngm.unigram_map.keySet()) {
+                    total_tokens_count += ngm.unigram_map.get(unigram_word);
+                }
 
-        
-        // if the ng is a bigram, ba then calculate alpha * (prob(a) / of number of tokens)
-        if (new_ng_list.size() ==  2) {
-        
-            String last_word = new_ng_list.get(-1); // get last_word in n_gram
-            double prob_next_word = ngm.unigram_map.get(last_word) / total_tokens_count;  
-            prob = alpha * prob_next_word; 
+                // count the sum of unigram probabilities of words we saw in a bigram starting with the first letter of the ngram
+                for (NGram last_word_as_ngram : ngm.n_1gram_map.get(n_1gram).keySet()) {
+                    String last_word = last_word_as_ngram.getNGramArrayList().get(0);
+                    denominator -= ngm.unigram_map.get(last_word) / total_tokens_count;
+                } 
+                double alpha = reserved_mass / denominator;
 
-        } else if (new_ng_list.size() ==  3) {
-        //for trigram "bac", we will mutltiply alpha * p(c | a) = count(a,c)/ count(a)
+                String second_word = new_ng_list.get(1); // get second word in bigram
+                double prob_next_word = ngm.unigram_map.get(second_word) / total_tokens_count;  
+                prob = alpha * prob_next_word; 
 
-            // get (a, c) out of the new_ng_list (b, a, c)
-            List<String> list_words = new_ng_list.subList(1, 2);
-            ArrayList<String> ngram_words = new ArrayList<String>();
-            for (String word : list_words) {
-                ngram_words.add(word);
             }
-            
-            HashMap<NGram, Double> lasttwoword_map = ngm.n_1gram_map.get(ngram_words); 
-            double sum = 0.0; // count(a,c)
-            for(NGram key : lasttwoword_map.keySet()) {
+            else if (new_ng_list.size() ==  3) {
+
+                ArrayList<String> new_ng_al = new_ng.getNGramArrayList();
+                ArrayList<String> middle_ng_al = (ArrayList<String>) new_ng_al.subList(1, new_ng_al.size()-2);
+                NGram middle_ng = new NGram(middle_ng_al);
+
+                for (NGram last_word_as_ngram : ngm.n_1gram_map.get(n_1gram).keySet()) {
+                    // denom -= bigram probability of last word given middle_ngram
+                    String last_word_as_str = last_word_as_ngram.getNGramArrayList().get(0);
+                    ArrayList<String> shifted_n_1_gram = (ArrayList<String>) middle_ng_al.clone();
+                    shifted_n_1_gram.add(last_word_as_str);
+                    shifted_n_1_gram.add(last_word_as_str); // add it a second time since getN_1GramCount automatically removes the last word in the ngram
+                    NGram cur_ng = new NGram(shifted_n_1_gram);
+
+                    double cur_ng_count = ngm.getN_1GramCount(cur_ng);
+                    double middle_ng_count = ngm.unigram_map.get(middle_ng);
+
+                    denominator -= cur_ng_count / middle_ng_count;
+                }
+
+                double alpha = reserved_mass / denominator;
+
+
+                //for trigram "bac", we will mutltiply alpha * p(c | a) = count(a,c)/ count(a)
+                List<String> list_words = new_ng_list.subList(1, 2);
+                ArrayList<String> ngram_words = new ArrayList<String>();
+                for (String word : list_words) {
+                    ngram_words.add(word);
+                }
                 
-                sum += lasttwoword_map.get(key);
+                HashMap<NGram, Double> lasttwoword_map = ngm.n_1gram_map.get(ngram_words); 
+                double sum = 0.0; // count(a,c)
+                for(NGram key : lasttwoword_map.keySet()) {
+                    
+                    sum += lasttwoword_map.get(key);
+                }
+
+                String second_word = new_ng_list.get(1);
+                double count_secondword = ngm.unigram_map.get(second_word); // count(a)
+
+                prob = alpha * (sum/count_secondword);
+
             }
 
-            String second_word = new_ng_list.get(1);
-            double count_secondword = ngm.unigram_map.get(second_word); // count(a)
-
-            prob = alpha * (sum/count_secondword); //for trigram "bac", we will mutltiply alpha * p(c | a) = count(a,c)/ count(a)
-
-
+            return prob;
 
         }
-
-        return prob;
-
-        }
-
-
     
     }
-
 
 
     public static void main(String[] args) {
@@ -165,7 +162,7 @@ public class Smoothing {
             }
         }
         System.out.println(tm.n_1gram_map + "n_1gram_map hello");  
-        System.out.println(smoother.getNGramProb(tm, new NGram(test_words), 1.0));    
+        System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));    
 
     }
 

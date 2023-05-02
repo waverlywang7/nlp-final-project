@@ -26,9 +26,6 @@ public abstract class NGramModel {
     public double getN_1GramCount(NGram ng) { 
         NGram n_1gram = ng.getN_1Gram();
         HashMap<NGram, Double> nestedMap = n_1gram_map.get(n_1gram);
-        // TODO: fix the fact that this prints out nothing in ngram_map, it seems like the model's ngram map is not passed in... perhaps, ngm needs to be passed
-        System.out.println(n_1gram_map + "n_1gram_map");
-        System.out.println(n_1gram.getClass()+ "n_1gram");
         
         double sum = 0.0;
         for(NGram key : nestedMap.keySet()) {

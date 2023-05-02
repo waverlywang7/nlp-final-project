@@ -9,7 +9,7 @@ public class NGram {
     private ArrayList<String> words = new ArrayList<String>();
 
     
-    public NGram(ArrayList<String> ngram) {
+    public NGram(List<String> ngram) {
         n = ngram.size();
         for(String word : ngram) {
             words.add(word);
