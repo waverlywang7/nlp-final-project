@@ -14,12 +14,6 @@ import java.util.*;
 import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
-  // HashMap<NGram, Integer> ngram_map = new HashMap<NGram, Integer>(); //bigram map
-  // //HashMap<String, Double> unigram_map = new HashMap <String, Double>(); // includes words with 0 count
-
-  // // ArrayList<String> words_encountered = new ArrayList<String>();
-  // HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // num of words encountered two times or more, the number of unique words including UNK. 
-  // HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // nested map with has first word then nested second word hashmap
 
   public BigramModel(String filename) {
     unigram_map.put("<UNK>", 0.0);
@@ -68,7 +62,7 @@ public class BigramModel extends NGramModel {
         NGram bigram = new NGram(word_list);
 
 
-        if (!ngram_map.containsKey(bigram)) { // TODO: REPLACE WITH n-GRAM OBJECT. 
+        if (!ngram_map.containsKey(bigram)) { 
           ngram_map.put(bigram, 1.0);
         } else {
           ngram_map.put(bigram, (ngram_map.get(bigram) + 1));
@@ -87,19 +81,10 @@ public class BigramModel extends NGramModel {
 
 
         // Populate an n_1grammap
-        // System.out.println(first_letter_ngram + "first_letter");
-        // System.out.println(n_1gram_map + "n_1gram_map");
         if (!n_1gram_map.containsKey(first_letter_ngram)) {
-          //System.out.println("I DONT CONTAIN THE WORD");
           HashMap<NGram, Double> second_letter_map = new HashMap<>();
           second_letter_map.put(second_letter_ngram, 1.0);
           n_1gram_map.put(first_letter_ngram, second_letter_map);
-          // ArrayList<String> randolist = new ArrayList<String>();
-          // randolist.add(first_letter_ngram.toString());
-          // NGram new_guy = new NGram(randolist);
-          // System.out.println(first_letter_ngram.toString().equals(new_guy.toString()));
-          // System.out.println(n_1gram_map.containsKey(new_guy));
-          //System.out.println("I GOT HERE AHHH BSHFJGBKSJDYGF");
         } else {
           // if the first letter is there check if second letter exists in nested map
           if (n_1gram_map.get(first_letter_ngram).containsKey(second_letter_ngram)) {
@@ -113,6 +98,13 @@ public class BigramModel extends NGramModel {
           }
         }
       }
+
+      for (String key : unigram_map.keySet()) {
+          if (unigram_map.get(key) >= 1) {
+              vocab_size += 1.0;
+          }
+      }
+
     
       myReader.close();
     } catch (FileNotFoundException e) {

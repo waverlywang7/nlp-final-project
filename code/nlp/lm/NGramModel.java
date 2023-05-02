@@ -9,6 +9,7 @@ public abstract class NGramModel {
     HashMap<String, Double> unigram_map = new HashMap<String, Double>(); //the words that occur at least 2 times,(the number of unique words including UNK)
     HashMap<NGram, Double> ngram_map = new HashMap<NGram, Double>();
     HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>();
+    Double vocab_size = 0.0;
 
     public double getNGramCount(NGram ng) {
 
@@ -38,7 +39,7 @@ public abstract class NGramModel {
     }
 
     public double getVocabSize() {
-        return (double) this.unigram_map.size();
+        return vocab_size;
     }
 
 }

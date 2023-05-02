@@ -100,9 +100,11 @@ public class TrigramModel extends NGramModel {
 
      }
   
-     //System.out.println(n_1gram_map);
-     //System.out.println(ngram_map);
-
+     for (String key : unigram_map.keySet()) {
+      if (unigram_map.get(key) >= 1) {
+          vocab_size += 1.0;
+      }
+  }
 
      myReader.close();
    } catch (FileNotFoundException e) {
