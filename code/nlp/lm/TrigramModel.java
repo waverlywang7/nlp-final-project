@@ -22,7 +22,6 @@ public class TrigramModel extends NGramModel {
 
  HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
  ArrayList<String> words_encountered = new ArrayList<String>();
- HashMap<String, Double> unigram_map = new HashMap<String, Double>(); // num of words encountered two times or more, the number of unique words including UNK. 
 
 
 
@@ -61,7 +60,7 @@ public class TrigramModel extends NGramModel {
           //unigram_map.put(word, 0.0); // keep track if we encountered word
           
           unigram_map.put(word, 0.0);
-          unigram_map.replace("<UNK>", unigram_map.get("<UNK>>") + 1.0);
+          unigram_map.replace("<UNK>", unigram_map.get("<UNK>") + 1.0);
           new_data.add("<UNK>");
           //unigram_map.put("<UNK>", unigram_map.get("<UNK>") + 1);// word is already in hashmap add to count
 
@@ -77,8 +76,8 @@ public class TrigramModel extends NGramModel {
         
          //the third word is also an ngram
          ArrayList<String> third_word = new ArrayList<String>();
-         NGram last_word = new NGram(third_word);
          third_word.add(new_data.get(i+2));
+         NGram last_word = new NGram(third_word);
          if (!n_1gram_map.containsKey(bigram)) {
            n_1gram_map.put(bigram, new HashMap<NGram, Double>()); // if word is already in hashmap, increment count
          }

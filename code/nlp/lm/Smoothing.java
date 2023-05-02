@@ -145,7 +145,7 @@ public class Smoothing {
 
 
     public static void main(String[] args) {
-        BigramModel model = new BigramModel("data/test2");
+        BigramModel model = new BigramModel("/Users/adamcohan/Desktop/Personal Projects/nlp-final-project/data/test2");
         for (NGram key : model.n_1gram_map.keySet()) {
             for (NGram innerKey : model.n_1gram_map.get(key).keySet()) {
                 System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + model.n_1gram_map.get(key).get(innerKey));
@@ -157,7 +157,16 @@ public class Smoothing {
         Smoothing smoother = new Smoothing();
 
         System.out.println(model.n_1gram_map + "n_1gram_map hello");  
-        System.out.println(smoother.getNGramProb(model, new NGram(test_words), 0.5));        
+        System.out.println(smoother.getNGramProb(model, new NGram(test_words), 0.5));    
+        
+        
+        TrigramModel tm = new TrigramModel("/Users/adamcohan/Desktop/Personal Projects/nlp-final-project/data/test2");
+        for (NGram key : tm.n_1gram_map.keySet()) {
+            for(NGram innerKey : tm.n_1gram_map.get(key).keySet()) {
+                // System.out.println("* " + innerKey);
+                System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + tm.n_1gram_map.get(key).get(innerKey));
+            }
+        }
 
     }
 
