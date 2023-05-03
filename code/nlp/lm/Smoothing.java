@@ -172,7 +172,7 @@ public class Smoothing {
 
     /**
 	 *  predict the next word in the sentence by splicing the sentence a random place and having the 
-     * model predict the best word given an n-word 
+     * model predict the best word given an n-1 gram word 
 	 * @param sentence ngram model
      * @param ngm ngram
      * @param lambda lambda value
@@ -195,9 +195,13 @@ public class Smoothing {
             double count_max = 0;
             String best_word = "";
             ArrayList<String> predictor_words = new ArrayList<String>();
-            for (int i = randomNum - ngram_length+1; i < randomNum; i++) {
+    
+            
+            for (int i = (randomNum - ngram_length)+1; i < randomNum; i++) {
+                System.out.println("added" + i );
                 predictor_words.add(sentence.get(i));
             }
+
             NGram predictor_ngram = new NGram(predictor_words);
 
             // confirm that model length is 1 more than the predictor ngram (which is treated as an n-1gram)
