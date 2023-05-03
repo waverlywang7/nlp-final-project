@@ -16,7 +16,14 @@ public class NGram {
         }
     }
 
+    public NGram(String word) {
+        n = 1;
+        words.add(word);
+    }
 
+    public int getN() {
+        return n;
+    }
 
     public ArrayList<String> getNGramArrayList() {
         return words;

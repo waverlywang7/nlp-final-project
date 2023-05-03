@@ -158,49 +158,105 @@ public class Smoothing {
 
     public Boolean predict_next_word(ArrayList<String> sentence, NGramModel ngm, double lambda){
         int ngram_length = ngm.getLength();
-        int randomNum = ThreadLocalRandom.current().nextInt(ngram_length-1, sentence.size());
-
-        String last_word = sentence.get(randomNum);
-
-        double max = 0.0; 
-        double count_max = 0;
-        String best_word = "";
-        ArrayList<String> predictor_words = new ArrayList<String>();
-        for (int i = randomNum - ngram_length+1; i < randomNum; i++) {
-            predictor_words.add(sentence.get(i));
+        if(ngram_length-1 >= sentence.size()) {
+            System.out.println("sentence too short");
+            return false;
         }
-        NGram predictor_ngram = new NGram(predictor_words);
-        System.out.println("predictor: " + predictor_ngram.toString());
-        // if predictor_ngram doesn't exist
-        if (!ngm.n_1gram_map.containsKey(predictor_ngram)){
-            // choose most popular word by unigram
-            for (String word : ngm.unigram_map.keySet()) {
-                if (ngm.unigram_map.get(word) > count_max) {
-                    count_max = ngm.unigram_map.get(word);
-                    best_word = word;
+        else {
+            // System.out.println(ngram_length-1 + " " + sentence.size());
+            int randomNum = ThreadLocalRandom.current().nextInt(ngram_length-1, sentence.size());
+
+            String last_word = sentence.get(randomNum);
+
+            double max = 0.0; 
+            double count_max = 0;
+            String best_word = "";
+            ArrayList<String> predictor_words = new ArrayList<String>();
+            for (int i = randomNum - ngram_length+1; i < randomNum; i++) {
+                predictor_words.add(sentence.get(i));
+            }
+            NGram predictor_ngram = new NGram(predictor_words);
+            // System.out.println(predictor_ngram.getN());
+            // System.out.println(ngm.getLength());
+            // confirm that model length is 1 more than the predictor ngram (which is treated as an n-1gram)
+            System.out.println("predictor: " + predictor_ngram.toString());
+            // if predictor_ngram doesn't exist
+            if (!ngm.n_1gram_map.containsKey(predictor_ngram)){
+                // choose most popular word by unigram
+                // maybe take the words in the ngram and see what other ngrams theyre in and pick the most popular one of those
+                System.out.println("DON'T HAVE");
+
+                ArrayList<String> words = predictor_ngram.getNGramArrayList();
+                double count_min;
+                String rarest_word;
+                if (ngm.unigram_map.containsKey(words.get(0))) {
+                    rarest_word = words.get(0);
+                }
+                else {
+                    rarest_word = "<UNK>";
+                }
+                count_min = ngm.unigram_map.get(rarest_word);
+
+                
+                for (String word : words) {
+                    if(ngm.unigram_map.containsKey(word) && ngm.unigram_map.get(word) < count_min) {
+                        count_min = ngm.unigram_map.get(word);
+                        rarest_word = word;
+                    }
+                }
+                // find most common last word for n_1gram containing rarest_word
+                HashSet<NGram> ngrams_with_rarest_word = new HashSet<NGram>();
+                for (NGram n_1gram : ngm.n_1gram_map.keySet()) {
+                    ArrayList<String> cur_n_1gram_al = n_1gram.getNGramArrayList();
+                    if(cur_n_1gram_al.contains(rarest_word)) {
+                        ngrams_with_rarest_word.add(n_1gram);
+                    }
+                }
+
+                double highest_last_word_count = 0;
+                String most_common_last_word = "";
+                for(NGram n_1gram : ngrams_with_rarest_word) {
+                    HashMap<NGram, Double> cur_nested_map = ngm.n_1gram_map.get(n_1gram);
+                    for(NGram last_word_as_ngram : cur_nested_map.keySet()) {
+                        if(cur_nested_map.get(last_word_as_ngram) > highest_last_word_count) {
+                            highest_last_word_count = cur_nested_map.get(last_word_as_ngram);
+                            most_common_last_word = last_word_as_ngram.getNGramArrayList().get(0);
+                        }
+                    }
+                }
+
+                best_word = most_common_last_word;
+
+                // for (String word : ngm.unigram_map.keySet()) {
+                //     if (ngm.unigram_map.get(word) > count_max) {
+                //         count_max = ngm.unigram_map.get(word);
+                //         best_word = word;
+                //     }
+                // }
+            } else {
+                System.out.println("YES HAVE");
+                HashMap<NGram, Double> map = ngm.n_1gram_map.get(predictor_ngram);
+                for (NGram word : map.keySet()) {
+                    predictor_words.add(word.toString());
+                    NGram new_predictor_ngram = new NGram(predictor_words);
+                    double probability = this.getNGramProbLambda(ngm, new_predictor_ngram, lambda);
+                    if (probability > max) {
+                        max = probability;
+                        best_word = word.toString();
+                    }
                 }
             }
-        } else {
-            HashMap<NGram, Double> map = ngm.n_1gram_map.get(predictor_ngram);
-            for (NGram word : map.keySet()) {
-                predictor_words.add(word.toString());
-                NGram new_predictor_ngram = new NGram(predictor_words);
-                double probability = this.getNGramProbLambda(ngm, new_predictor_ngram, lambda);
-                if (probability > max) {
-                    max = probability;
-                    best_word = word.toString();
-                }
+            
+            System.out.println("actual word: " + last_word);
+            System.out.println("predicted word: " + best_word);
+            return best_word.equals(last_word); 
         }
-    }
-        
-        System.out.println("actual word: " + last_word);
-        System.out.println("predicted word: " + best_word);
-        return best_word == last_word;  
     }
 
 
     public static void main(String[] args) {
-        BigramModel model = new BigramModel("data/sentences");
+        // BigramModel model = new BigramModel("data/sentences");
+        BigramModel tm = new BigramModel("nlp-final-project/data/point9pct.txt");
         // for (NGram key : model.n_1gram_map.keySet()) {
         //     for (NGram innerKey : model.n_1gram_map.get(key).keySet()) {
         //         System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + model.n_1gram_map.get(key).get(innerKey));
@@ -220,10 +276,16 @@ public class Smoothing {
         //System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));   
         //System.out.println(smoother.getNGramProbDiscount(tm, new NGram(test_words1), .2) + "WOAH");  
         
-        int correct_count = 0;
+        int correct_count0 = 0;
+        int correct_count2 = 0;
+        int correct_count4 = 0;
+        int correct_count6 = 0;
+        int correct_count8 = 0;
+        int correct_count10 = 0;
         int total_count = 0;
         try {
-            File myObj = new File("data/testing.txt");
+            File myObj = new File("nlp-final-project/data/point01pct.txt");
+            
             Scanner myReader = new Scanner(myObj);
 
             while (myReader.hasNextLine()) {
@@ -233,10 +295,26 @@ public class Smoothing {
                 for (String word : data.split("\\s+")) {
                     sentence.add(word);
                 }
-                if (smoother.predict_next_word(sentence, model, 0.0)) {
-                    correct_count += 1;
+                if (smoother.predict_next_word(sentence, tm, 0.0)) {
+                    correct_count0 += 1;
                 }
+                // if (smoother.predict_next_word(sentence, tm, 0.2)) {
+                //     correct_count2 += 1;
+                // }
+                // if (smoother.predict_next_word(sentence, tm, 0.4)) {
+                //     correct_count4 += 1;
+                // }
+                // if (smoother.predict_next_word(sentence, tm, 0.6)) {
+                //     correct_count6 += 1;
+                // }
+                // if (smoother.predict_next_word(sentence, tm, 0.8)) {
+                //     correct_count8 += 1;
+                // }
+                // if (smoother.predict_next_word(sentence, tm, 1.0)) {
+                //     correct_count10 += 1;
+                // }
                 total_count += 1;
+                System.out.println();
             }
             myReader.close();
         } catch (FileNotFoundException e) {
@@ -244,7 +322,12 @@ public class Smoothing {
             e.printStackTrace();
         }
 
-        System.out.println("correct count: " + correct_count);
+        System.out.println("correct count 0.0: " + correct_count0);
+        System.out.println("correct count 0.2: " + correct_count2);
+        System.out.println("correct count 0.4: " + correct_count4);
+        System.out.println("correct count 0.6: " + correct_count6);
+        System.out.println("correct count 0.8: " + correct_count8);
+        System.out.println("correct count 1.0: " + correct_count10);
         System.out.println("total count: " + total_count);
 
 
