@@ -15,6 +15,11 @@ import java.util.HashMap;
 
 public class BigramModel extends NGramModel {
 
+  /**
+	 *  takes in a training set and populates bigram map (ngram_map) which holds counts of bigrams and
+   *  n_1gram_map which is a nested hashmap where keys are first word in ngram and the values of hashmaps of the second word in ngram
+	 * @param filename test set
+	 */
   public BigramModel(String filename) {
     n = 2;
     unigram_map.put("<UNK>", 0.0);

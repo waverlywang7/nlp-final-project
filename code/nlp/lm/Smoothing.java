@@ -10,7 +10,14 @@ import javax.swing.UIManager;
 
 public class Smoothing {
     
-
+    /**
+	 *  Get the ngram probability using lambda smoothing
+	 * @param ngm ngram model
+     * @param ng ngram
+     * @param lambda lambda value
+     * @return ngram probability 
+     *
+	 */
     public double getNGramProbLambda(NGramModel ngm, NGram ng, double lambda) {
         //System.out.println(ngm.n_1gram_map + "wee"); // UH OH why isn't the n_1gram_map here... 
         ArrayList<String> ng_list = ng.getNGramArrayList(); 
@@ -36,7 +43,14 @@ public class Smoothing {
         return finalProb;
     }
 
-
+    /**
+	 *  Get the ngram probability using backoff discounting
+	 * @param ngm ngram model
+     * @param ng ngram
+     * @param lambda lambda value
+     * @return ngram probability 
+     *
+	 */
     public double getNGramProbDiscount(NGramModel ngm, NGram ng, double discount) {
         ArrayList<String> ng_list = ng.getNGramArrayList(); 
             
@@ -156,6 +170,15 @@ public class Smoothing {
     
     }
 
+    /**
+	 *  predict the next word in the sentence by splicing the sentence a random place and having the 
+     * model predict the best word given an n-word 
+	 * @param sentence ngram model
+     * @param ngm ngram
+     * @param lambda lambda value
+     * @return the best predicted word
+     *
+	 */
     public Boolean predict_next_word(ArrayList<String> sentence, NGramModel ngm, double lambda){
         int ngram_length = ngm.getLength();
         if(ngram_length-1 >= sentence.size()) {
@@ -176,8 +199,7 @@ public class Smoothing {
                 predictor_words.add(sentence.get(i));
             }
             NGram predictor_ngram = new NGram(predictor_words);
-            // System.out.println(predictor_ngram.getN());
-            // System.out.println(ngm.getLength());
+
             // confirm that model length is 1 more than the predictor ngram (which is treated as an n-1gram)
             System.out.println("predictor: " + predictor_ngram.toString());
             // if predictor_ngram doesn't exist
@@ -298,21 +320,21 @@ public class Smoothing {
                 if (smoother.predict_next_word(sentence, tm, 0.0)) {
                     correct_count0 += 1;
                 }
-                // if (smoother.predict_next_word(sentence, tm, 0.2)) {
-                //     correct_count2 += 1;
-                // }
-                // if (smoother.predict_next_word(sentence, tm, 0.4)) {
-                //     correct_count4 += 1;
-                // }
-                // if (smoother.predict_next_word(sentence, tm, 0.6)) {
-                //     correct_count6 += 1;
-                // }
-                // if (smoother.predict_next_word(sentence, tm, 0.8)) {
-                //     correct_count8 += 1;
-                // }
-                // if (smoother.predict_next_word(sentence, tm, 1.0)) {
-                //     correct_count10 += 1;
-                // }
+                if (smoother.predict_next_word(sentence, tm, 0.2)) {
+                    correct_count2 += 1;
+                }
+                if (smoother.predict_next_word(sentence, tm, 0.4)) {
+                    correct_count4 += 1;
+                }
+                if (smoother.predict_next_word(sentence, tm, 0.6)) {
+                    correct_count6 += 1;
+                }
+                if (smoother.predict_next_word(sentence, tm, 0.8)) {
+                    correct_count8 += 1;
+                }
+                if (smoother.predict_next_word(sentence, tm, 1.0)) {
+                    correct_count10 += 1;
+                }
                 total_count += 1;
                 System.out.println();
             }

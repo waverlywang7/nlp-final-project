@@ -14,11 +14,12 @@ import java.util.*;
 // Importing HashMap class
 import java.util.HashMap;
 
-
+/**
+ *  takes in a training set and populates trigram map (ngram_map) which holds counts of 
+ * trigrams and n_1gram_map which is a nested hashmap where keys are bigrams which hash to the third word in trigram
+ * @param filename test set
+ */
 public class TrigramModel extends NGramModel {
-
-  //static HashMap<NGram, Double> ngram_map = new HashMap<NGram, Double>(); //bigram map
-  //HashMap<NGram, HashMap<NGram, Double>> n_1gram_map = new HashMap<NGram, HashMap<NGram, Double>>(); // unigram map
 
 
  HashMap<String, HashMap<String, Double>> bigram_map = new HashMap<>();
@@ -42,27 +43,20 @@ public class TrigramModel extends NGramModel {
        String data = myReader.nextLine();
        data = "<s> " + data + " </s>";
        for (String word : data.split("\\s+")) {
-        // create ngram object
-        // ArrayList<String> word_list = new ArrayList<String>(); // a word list that just contains one word
-        // word_list.add(word);
-        // NGram unigram = new NGram(word_list);
 
         if (unigram_map.containsKey(word)) {
-          //unigram_map.put(word, unigram_map.get(word) + 1.0); // if word is already in hashmap, increment count
-
+   
           unigram_map.replace(word, unigram_map.get(word) + 1.0);
           new_data.add(word); // add word to new_data
           
           
         } else { // if word is not in hashmap, add to hashmap but set count to 0, and replace it
                  // with <UNK>.
-          //unigram_map.put(word, 0.0); // keep track if we encountered word
-          
+  
           unigram_map.put(word, 0.0);
           unigram_map.replace("<UNK>", unigram_map.get("<UNK>") + 1.0);
           new_data.add("<UNK>");
-          //unigram_map.put("<UNK>", unigram_map.get("<UNK>") + 1);// word is already in hashmap add to count
-
+ 
         }
       }
       System.out.println(new_data);

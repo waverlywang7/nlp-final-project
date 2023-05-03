@@ -13,9 +13,20 @@ public abstract class NGramModel {
     Double vocab_size = 0.0;
 
 
+    /**
+	 *  gets length of the ngram
+	 * 
+	 * @return length of ngram
+	 */
     public int getLength(){
         return this.n;
     }
+
+    /**
+	 *  returns the count of ngram in training set
+	 * @param ng takes in a ngram and gets the count of ngram in the training set
+	 * @return the ngram count
+	 */
     public double getNGramCount(NGram ng) {
 
         if(ngram_map.keySet().contains(ng)) { // TODO: fix the fact that this prints out nothing in ngram_map, it seems like the model's ngram map is not passed in... perhaps, ngm needs to be passed
@@ -27,7 +38,11 @@ public abstract class NGramModel {
         
     }
 
-    // to return count(aa) pass in the ngram "aad"
+     /**
+	 *  returns the count of n_1gram in training set, for instance, for a trigram "aad", pass in to return count(aa)  
+	 * @param ng takes in a ngram and gets the count of ngram in the training set
+	 * @return the ngram count
+	 */
     public double getN_1GramCount(NGram ng) { 
         NGram n_1gram = ng.getN_1Gram();
 
@@ -45,6 +60,10 @@ public abstract class NGramModel {
         return sum;
     }
 
+     /**
+	 *  return the size of the unigram vocab 
+	 * @return the unique vocab size of training set
+	 */
     public double getVocabSize() {
         return vocab_size;
     }
