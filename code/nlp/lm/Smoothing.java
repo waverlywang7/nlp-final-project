@@ -176,7 +176,7 @@ public class Smoothing {
 	 * @param sentence ngram model
      * @param ngm ngram
      * @param lambda lambda value
-     * @return the best predicted word
+     * @return boolean that says if the best predicted word is correct
      *
 	 */
     public Boolean predict_next_word(ArrayList<String> sentence, NGramModel ngm, double lambda){
