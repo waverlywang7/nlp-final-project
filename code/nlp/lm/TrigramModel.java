@@ -6,11 +6,6 @@ import java.io.File; // Import the File class
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.lang.Math;
-import java.util.List;
-import java.util.Collections;
-import java.util.*;
 // Importing HashMap class
 import java.util.HashMap;
 

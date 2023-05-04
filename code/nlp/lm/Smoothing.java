@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Predicate;
-
-import javax.swing.UIManager;
 
 public class Smoothing {
     
@@ -19,7 +16,6 @@ public class Smoothing {
      *
 	 */
     public double getNGramProbLambda(NGramModel ngm, NGram ng, double lambda) {
-        //System.out.println(ngm.n_1gram_map + "wee"); // UH OH why isn't the n_1gram_map here... 
         ArrayList<String> ng_list = ng.getNGramArrayList(); 
         
         ArrayList<String> new_ng_list = new ArrayList<String>();
@@ -123,8 +119,6 @@ public class Smoothing {
                 NGram middle_ng = new NGram(middle_ng_al);
 
                 for (NGram last_word_as_ngram : ngm.n_1gram_map.get(n_1gram).keySet()) {
-                    // denom -= bigram probability of last word given middle_ngram
-                    //String last_word_as_str = last_word_as_ngram.getNGramArrayList().get(0);
 
                     List<String> shifted_n_1_gram = (List<String>) middle_ng_al.clone();
                     shifted_n_1_gram.add(new_ng_list.get(0)); // first and second letter
@@ -133,7 +127,6 @@ public class Smoothing {
                     NGram cur_ng = new NGram(shifted_n_1_gram);
                     System.out.println(cur_ng.toString() +" curr");
                     double cur_ng_count = ngm.getN_1GramCount(cur_ng);
-                    // double middle_ng_count = ngm.unigram_map.get(middle_ng);
                     double middle_ng_count = ngm.unigram_map.get(new_ng_list.get(1));
 
                     denominator -= cur_ng_count / middle_ng_count;
@@ -186,13 +179,11 @@ public class Smoothing {
             return false;
         }
         else {
-            // System.out.println(ngram_length-1 + " " + sentence.size());
             int randomNum = ThreadLocalRandom.current().nextInt(ngram_length-1, sentence.size());
 
             String last_word = sentence.get(randomNum);
 
             double max = 0.0; 
-            double count_max = 0;
             String best_word = "";
             ArrayList<String> predictor_words = new ArrayList<String>();
     
@@ -204,12 +195,9 @@ public class Smoothing {
 
             NGram predictor_ngram = new NGram(predictor_words);
 
-            // confirm that model length is 1 more than the predictor ngram (which is treated as an n-1gram)
             System.out.println("predictor: " + predictor_ngram.toString());
             // if predictor_ngram doesn't exist
             if (!ngm.n_1gram_map.containsKey(predictor_ngram)){
-                // choose most popular word by unigram
-                // maybe take the words in the ngram and see what other ngrams theyre in and pick the most popular one of those
                 System.out.println("DON'T HAVE");
 
                 ArrayList<String> words = predictor_ngram.getNGramArrayList();
@@ -252,13 +240,6 @@ public class Smoothing {
                 }
 
                 best_word = most_common_last_word;
-
-                // for (String word : ngm.unigram_map.keySet()) {
-                //     if (ngm.unigram_map.get(word) > count_max) {
-                //         count_max = ngm.unigram_map.get(word);
-                //         best_word = word;
-                //     }
-                // }
             } else {
                 System.out.println("YES HAVE");
                 HashMap<NGram, Double> map = ngm.n_1gram_map.get(predictor_ngram);
@@ -281,26 +262,8 @@ public class Smoothing {
 
 
     public static void main(String[] args) {
-        // BigramModel model = new BigramModel("data/sentences");
         BigramModel tm = new BigramModel("nlp-final-project/data/point9pct.txt");
-        // for (NGram key : model.n_1gram_map.keySet()) {
-        //     for (NGram innerKey : model.n_1gram_map.get(key).keySet()) {
-        //         System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + model.n_1gram_map.get(key).get(innerKey));
-        //     }
-        // }
         Smoothing smoother = new Smoothing();
-        
-        
-        // TrigramModel tm = new TrigramModel("data/test2");
-        // for (NGram key : tm.n_1gram_map.keySet()) {
-        //     for(NGram innerKey : tm.n_1gram_map.get(key).keySet()) {
-        //         // System.out.println("* " + innerKey);
-        //         System.out.println(key.getNGramArrayList() + " " + innerKey.getNGramArrayList() + " " + tm.n_1gram_map.get(key).get(innerKey));
-        //     }
-        // }
-        //System.out.println(tm.n_1gram_map + "n_1gram_map hello");  
-        //System.out.println(smoother.getNGramProbLambda(tm, new NGram(test_words), 1.0));   
-        //System.out.println(smoother.getNGramProbDiscount(tm, new NGram(test_words1), .2) + "WOAH");  
         
         int correct_count0 = 0;
         int correct_count2 = 0;
